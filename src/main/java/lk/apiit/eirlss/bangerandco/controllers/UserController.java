@@ -50,16 +50,6 @@ public class UserController {
         return convertor.toUserDTO(newUser);
     }
 
-    @PostMapping("/login")
-    public UserDTO auth(@RequestBody UserDTO userDTO) {
-        User user = service.getUserByEmail(userDTO.getEmail());
-        boolean isValid = checkPassword(userDTO.getPassword(), user.getPassword());
-        if (isValid) {
-            return convertor.toUserDTO(user);
-        }
-        return new UserDTO();
-    }
-
     private User updateUser(User user, UserDTO dto) {
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
@@ -73,9 +63,5 @@ public class UserController {
 
     private String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
-    }
-
-    private boolean checkPassword(String password, String hashPassword) {
-        return BCrypt.checkpw(password, hashPassword);
     }
 }
