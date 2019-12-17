@@ -10,6 +10,8 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.util.Date;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,7 +22,7 @@ public class User {
 
     @Id
 //    @GeneratedValue(generator = "uuid")
-//    @GenericGenerator(name = "uuid", strategy = "uuid")
+//    @GenericGenerator(name = "id", strategy = "uuid")
     @Column(name = "id")
     private String id;
 
@@ -45,4 +47,10 @@ public class User {
 
     @Column(name = "password")
     private String password;
+
+    @Column(name = "newUser")
+    private boolean newUser;
+
+    @Column(name = "blacklisted")
+    private boolean blacklisted;
 }
