@@ -1,11 +1,18 @@
 package lk.apiit.eirlss.bangerandco.controllers;
 
-import lk.apiit.eirlss.bangerandco.Convertors.UserConvertor;
-import lk.apiit.eirlss.bangerandco.dto.UserDTO;
-import lk.apiit.eirlss.bangerandco.models.User;
+import lk.apiit.eirlss.bangerandco.components.JwtUtil;
+import lk.apiit.eirlss.bangerandco.models.AuthenticationRequest;
+import lk.apiit.eirlss.bangerandco.models.AuthenticationResponse;
+import lk.apiit.eirlss.bangerandco.services.UserDetailsServiceImpl;
 import lk.apiit.eirlss.bangerandco.services.UserService;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,26 +20,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuthenticationController {
     private UserService service;
-    private UserConvertor convertor;
+    private ModelMapper modelMapper;
+    private UserDetailsServiceImpl userServiceDetails;
+    private final AuthenticationManager authenticationManager;
+    private JwtUtil jwtUtil;
 
     @Autowired
-    public AuthenticationController(UserService service) {
+    public AuthenticationController(UserService service, UserDetailsServiceImpl userServiceDetails, AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         this.service = service;
-        this.convertor = new UserConvertor();
+        this.userServiceDetails = userServiceDetails;
+        this.jwtUtil = jwtUtil;
+        this.modelMapper = new ModelMapper();
+        this.modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/login")
-    public UserDTO login(@RequestBody UserDTO userDTO) {
-        User user = service.getUserByEmail(userDTO.getEmail());
-        boolean isValid = checkPassword(userDTO.getPassword(), user.getPassword());
-        if (isValid) {
-            System.out.println(userDTO.toString());
-            return convertor.toUserDTO(user);
+    public ResponseEntity<?> login(@RequestBody AuthenticationRequest authRequest) throws Exception {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+            UserDetails userDetails = userServiceDetails.loadUserByUsername(authRequest.getUsername());
+            String jwt = jwtUtil.generateToken(userDetails);
+            return ResponseEntity.ok(new AuthenticationResponse(jwt));
+        } catch (BadCredentialsException e) {
+            throw new Exception("Invalid username or password", e);
         }
-        return new UserDTO();
-    }
-
-    private boolean checkPassword(String password, String hashPassword) {
-        return BCrypt.checkpw(password, hashPassword);
     }
 }
