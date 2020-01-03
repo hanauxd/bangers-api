@@ -1,5 +1,6 @@
 package lk.apiit.eirlss.bangerandco.services;
 
+import lk.apiit.eirlss.bangerandco.exceptions.EmailAlreadyExistException;
 import lk.apiit.eirlss.bangerandco.models.User;
 import lk.apiit.eirlss.bangerandco.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,12 @@ public class UserService {
         this.repository = repository;
     }
 
-    public void createUser(User user) {
-        repository.save(user);
+    public User createUser(User user) {
+        try {
+            return repository.save(user);
+        } catch (Exception e) {
+            throw new EmailAlreadyExistException("Email " + user.getEmail() + " already exist.");
+        }
     }
 
     public List<User> getAllUsers() {
@@ -33,7 +38,7 @@ public class UserService {
         return repository.save(user);
     }
 
-    public User getUserByEmail(String email) {
+    public Optional<User> getUserByEmail(String email) {
         return repository.findUserByEmail(email);
     }
 }
