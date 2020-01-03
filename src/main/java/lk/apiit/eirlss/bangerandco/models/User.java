@@ -1,6 +1,5 @@
 package lk.apiit.eirlss.bangerandco.models;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,49 +7,48 @@ import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.Date;
-
-import static javax.persistence.GenerationType.IDENTITY;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
 @Entity
-@Table(name = "user")
 public class User {
-
     @Id
-//    @GeneratedValue(generator = "uuid")
-//    @GenericGenerator(name = "id", strategy = "uuid")
-    @Column(name = "id")
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(length = 36)
     private String id;
 
-    @Column(name = "role")
+    @NotBlank(message = "Role is required.")
     private String role;
 
-    @Column(name = "firstName")
+    @NotBlank(message = "First name is required.")
     private String firstName;
 
-    @Column(name = "lastName")
+    @NotBlank(message = "Last name is required.")
     private String lastName;
 
-    @Column(name = "dob")
-    @JsonFormat(pattern = "dd-MM-yyyy")
-    private Date dateOfBirth;
+    @NotBlank(message = "Date of birth is required.")
+    private String dob;
 
-    @Column(name = "phone")
+    @NotBlank(message = "Phone number is required.")
     private String phone;
 
-    @Column(name = "email")
+    @Email(message = "A valid email is required")
+    @NotBlank(message = "Email is required.")
     private String email;
 
-    @Column(name = "password")
+    @NotBlank(message = "Password is required.")
     private String password;
 
-    @Column(name = "newUser")
     private boolean newUser;
 
-    @Column(name = "blacklisted")
     private boolean blacklisted;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Booking> bookings;
 }

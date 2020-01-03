@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
 
 @Data
@@ -16,30 +14,28 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString
 @Entity
-@Table(name = "booking")
 public class Booking {
     @Id
-    @Column
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(length = 36)
     private String id;
 
-    @Column(name = "status")
     private String status;
 
-    @Column(name = "pickupDate")
     private Date pickupDate;
 
-    @Column(name = "dropDate")
     private Date dropDate;
 
-    @Column(name = "active")
     private boolean active;
 
-    @Column(name = "lateDrop")
     private boolean lateDrop;
 
-    @Column(name = "extended")
     private boolean extended;
 
-    @Column(name = "extendedDate")
     private Date extendedDate;
+
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user", nullable = false, referencedColumnName = "id")
+    private User user;
 }
