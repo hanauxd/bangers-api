@@ -1,64 +1,67 @@
 package lk.apiit.eirlss.bangerandco.controllers;
 
-import lk.apiit.eirlss.bangerandco.Convertors.UserConvertor;
 import lk.apiit.eirlss.bangerandco.dto.UserDTO;
 import lk.apiit.eirlss.bangerandco.models.User;
+import lk.apiit.eirlss.bangerandco.services.MapValidationErrorService;
 import lk.apiit.eirlss.bangerandco.services.UserService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
     private UserService service;
-    private UserConvertor convertor;
+    private ModelMapper modelMapper;
+    private MapValidationErrorService mapValidationErrorService;
 
     @Autowired
-    public UserController(UserService service) {
+    public UserController(UserService service, MapValidationErrorService mapValidationErrorService) {
         this.service = service;
-        this.convertor = new UserConvertor();
+        this.modelMapper = new ModelMapper();
+        this.mapValidationErrorService = mapValidationErrorService;
     }
 
     @PostMapping
-    public void createUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO, BindingResult result) {
+
+        if (result.hasErrors()) return mapValidationErrorService.mapValidationErrorService(result);
+
         String hashedPassword = hashPassword(userDTO.getPassword());
         userDTO.setPassword(hashedPassword);
-        User user = convertor.toUserModel(userDTO);
-        service.createUser(user);
+        User user = modelMapper.map(userDTO, User.class);
+        User savedUser = service.createUser(user);
+        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
     @GetMapping
     public List<UserDTO> getAllUsers() {
         List<User> userList = service.getAllUsers();
-        return convertor.toUserDTOList(userList);
+        return Arrays.asList(modelMapper.map(userList, UserDTO[].class));
     }
 
     @GetMapping("/{id}")
     public UserDTO getUserById(@PathVariable String id) {
         User user = service.getUserById(id);
-        return convertor.toUserDTO(user);
+        return modelMapper.map(user, UserDTO.class);
     }
 
     @PutMapping("/{id}")
     public UserDTO updateUser(@RequestBody UserDTO userDTO, @PathVariable String id) {
         User user = service.getUserById(id);
-        User updatedUser = updateUser(user, userDTO);
-        User newUser = service.updateUser(updatedUser);
-        return convertor.toUserDTO(newUser);
-    }
-
-    private User updateUser(User user, UserDTO dto) {
-        user.setFirstName(dto.getFirstName());
-        user.setLastName(dto.getLastName());
-        user.setEmail(dto.getEmail());
-        user.setDateOfBirth(dto.getDob());
-        user.setPassword(dto.getPassword());
-        user.setRole(dto.getRole());
-        user.setPhone(dto.getPhone());
-        return user;
+        String hashPassword = hashPassword(userDTO.getPassword());
+        userDTO.setPassword(hashPassword);
+        modelMapper.map(userDTO, user);
+        User newUser = service.updateUser(user);
+        return modelMapper.map(newUser, UserDTO.class);
     }
 
     private String hashPassword(String password) {
