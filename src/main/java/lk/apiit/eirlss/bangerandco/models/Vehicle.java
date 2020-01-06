@@ -7,6 +7,8 @@ import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -20,13 +22,21 @@ public class Vehicle {
     @Column(length = 36)
     private String id;
 
-    private String licence;
+    @NotBlank(message = "License number is required.")
+    private String license;
 
+    @NotBlank(message = "Description is required.")
     private String description;
 
+    @NotBlank(message = "Model is required.")
     private String model;
 
+    @NotBlank(message = "Brand is required.")
     private String brand;
 
+    @NotBlank(message = "Category is required.")
     private String category;
+
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Booking> bookings;
 }
