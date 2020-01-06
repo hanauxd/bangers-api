@@ -1,38 +1,47 @@
 package lk.apiit.eirlss.bangerandco.controllers;
 
-import lk.apiit.eirlss.bangerandco.components.JwtUtil;
+import lk.apiit.eirlss.bangerandco.security.JwtUtil;
+import lk.apiit.eirlss.bangerandco.dto.UserDTO;
 import lk.apiit.eirlss.bangerandco.models.AuthenticationRequest;
 import lk.apiit.eirlss.bangerandco.models.AuthenticationResponse;
+import lk.apiit.eirlss.bangerandco.models.User;
+import lk.apiit.eirlss.bangerandco.services.MapValidationErrorService;
 import lk.apiit.eirlss.bangerandco.services.UserDetailsServiceImpl;
 import lk.apiit.eirlss.bangerandco.services.UserService;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class AuthenticationController {
-    private UserService service;
-    private ModelMapper modelMapper;
     private UserDetailsServiceImpl userServiceDetails;
     private final AuthenticationManager authenticationManager;
     private JwtUtil jwtUtil;
+    private MapValidationErrorService mapValidationErrorService;
+    private ModelMapper modelMapper;
+    private UserService userService;
 
     @Autowired
-    public AuthenticationController(UserService service, UserDetailsServiceImpl userServiceDetails, AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
-        this.service = service;
+    public AuthenticationController(UserDetailsServiceImpl userServiceDetails,
+                                    AuthenticationManager authenticationManager,
+                                    JwtUtil jwtUtil,
+                                    MapValidationErrorService mapValidationErrorService,
+                                    UserService userService) {
         this.userServiceDetails = userServiceDetails;
         this.jwtUtil = jwtUtil;
-        this.modelMapper = new ModelMapper();
-        this.modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
         this.authenticationManager = authenticationManager;
+        this.mapValidationErrorService = mapValidationErrorService;
+        this.userService = userService;
+        this.modelMapper = new ModelMapper();
     }
 
     @PostMapping("/login")
@@ -45,5 +54,13 @@ public class AuthenticationController {
         } catch (BadCredentialsException e) {
             throw new Exception("Invalid username or password", e);
         }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody UserDTO dto, BindingResult result) {
+        if (result.hasErrors()) return mapValidationErrorService.mapValidationErrorService(result);
+        User user = modelMapper.map(dto, User.class);
+        User savedUser = userService.createUser(user);
+        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 }
