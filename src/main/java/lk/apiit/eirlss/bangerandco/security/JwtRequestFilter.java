@@ -1,4 +1,4 @@
-package lk.apiit.eirlss.bangerandco.components;
+package lk.apiit.eirlss.bangerandco.security;
 
 import lk.apiit.eirlss.bangerandco.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

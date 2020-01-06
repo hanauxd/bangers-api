@@ -1,8 +1,7 @@
-package lk.apiit.eirlss.bangerandco.components;
+package lk.apiit.eirlss.bangerandco.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+import lk.apiit.eirlss.bangerandco.exceptions.JsonWebTokenException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -14,9 +13,8 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
-    @Value("${app.secret}")
+    @Value("${app.token.secret}")
     private String SECRET_KEY;
-
     @Value("${app.token.expiry-time}")
     private long EXPIRY_TIME;
 
@@ -34,7 +32,19 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+        try {
+            return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+        } catch (SignatureException ex) {
+            throw new JsonWebTokenException("Invalid JWT signature.");
+        } catch (MalformedJwtException ex) {
+            throw new JsonWebTokenException("Invalid JWT token.");
+        } catch (ExpiredJwtException ex) {
+            throw new JsonWebTokenException("Expired JWT token.");
+        } catch (UnsupportedJwtException ex) {
+            throw new JsonWebTokenException("Unsupported JWT token.");
+        } catch (IllegalArgumentException ex) {
+            throw new JsonWebTokenException("JWT claims string is empty.");
+        }
     }
 
     private boolean isTokenExpired(String token) {
