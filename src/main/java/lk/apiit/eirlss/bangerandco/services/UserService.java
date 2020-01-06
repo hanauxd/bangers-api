@@ -1,13 +1,15 @@
 package lk.apiit.eirlss.bangerandco.services;
 
-import lk.apiit.eirlss.bangerandco.exceptions.EmailAlreadyExistException;
+import lk.apiit.eirlss.bangerandco.exceptions.BadRequestException;
+import lk.apiit.eirlss.bangerandco.exceptions.ResourceNotFoundException;
 import lk.apiit.eirlss.bangerandco.models.User;
 import lk.apiit.eirlss.bangerandco.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -19,11 +21,10 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        try {
-            return repository.save(user);
-        } catch (Exception e) {
-            throw new EmailAlreadyExistException("Email " + user.getEmail() + " already exist.");
-        }
+        boolean isExist = repository.findUserByEmail(user.getEmail()).isPresent();
+        if (isExist) throw new BadRequestException("Email '" + user.getEmail() + "' already exist.");
+        user.setPassword(hashPassword(user.getPassword()));
+        return repository.save(user);
     }
 
     public List<User> getAllUsers() {
@@ -31,14 +32,28 @@ public class UserService {
     }
 
     public User getUserById(String id) {
-        return repository.findById(id).orElse(null);
+        User user = repository.findById(id).orElse(null);
+        if (user == null) throw new ResourceNotFoundException("User not found.");
+        return user;
     }
 
     public User updateUser(User user) {
+        user.setPassword(hashPassword(user.getPassword()));
         return repository.save(user);
     }
 
-    public Optional<User> getUserByEmail(String email) {
-        return repository.findUserByEmail(email);
+    public User getUserByEmail(String email) {
+        User user = repository.findUserByEmail(email).orElse(null);
+        if (user == null) throw new UsernameNotFoundException("Email '" + email + "' not found.");
+        return user;
+    }
+
+    public void deleteUser(String id) {
+        User user = getUserById(id);
+        repository.delete(user);
+    }
+
+    private String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 }
