@@ -42,24 +42,24 @@ public class VehicleController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
-    @GetMapping("/{license}")
-    public ResponseEntity<?> getVehicleByLicense(@PathVariable String license) {
-        Vehicle vehicle = vehicleService.getVehicleByLicense(license);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getVehicleByLicense(@PathVariable String id) {
+        Vehicle vehicle = vehicleService.getVehicleById(id);
         return new ResponseEntity<>(vehicle, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    @PutMapping("/{license}")
-    public ResponseEntity<?> updateVehicle(@Valid @PathVariable String license, @RequestBody Vehicle vehicle, BindingResult result) {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateVehicle(@Valid @PathVariable String id, @RequestBody Vehicle vehicle, BindingResult result) {
         if (result.hasErrors()) mapValidationErrorService.mapValidationErrorService(result);
-        Vehicle updatedVehicle = vehicleService.updateVehicle(license, vehicle);
+        Vehicle updatedVehicle = vehicleService.updateVehicle(id, vehicle);
         return new ResponseEntity<>(updatedVehicle, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    @DeleteMapping("/{license}")
-    public ResponseEntity<?> deleteVehicle(@PathVariable String license) {
-        vehicleService.deleteVehicle(license);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteVehicle(@PathVariable String id) {
+        vehicleService.deleteVehicle(id);
         return new ResponseEntity<>("Vehicle is deleted.", HttpStatus.OK);
     }
 }
