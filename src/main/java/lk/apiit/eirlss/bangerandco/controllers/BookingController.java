@@ -59,6 +59,13 @@ public class BookingController {
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'STAFF')")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateBooking(@PathVariable String id, @RequestBody BookingDTO dto, Authentication auth, BindingResult result) {
+        deleteBooking(id);
+        return createBooking(dto, auth, result);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'STAFF')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBooking(@PathVariable String id) {
         bookingService.deleteBooking(id);
