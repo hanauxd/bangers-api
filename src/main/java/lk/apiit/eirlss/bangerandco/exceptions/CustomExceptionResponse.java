@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-@AllArgsConstructor
 @Getter
 @Setter
-public class EmailAlreadyExistExceptionResponse {
-    private String email;
+@AllArgsConstructor
+public class CustomExceptionResponse {
+    private String message;
 }

@@ -1,4 +1,4 @@
-package lk.apiit.eirlss.bangerandco.dto;
+package lk.apiit.eirlss.bangerandco.dto.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

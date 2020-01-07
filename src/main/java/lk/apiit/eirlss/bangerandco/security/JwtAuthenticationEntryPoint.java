@@ -1,4 +1,4 @@
-package lk.apiit.eirlss.bangerandco.components;
+package lk.apiit.eirlss.bangerandco.security;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;

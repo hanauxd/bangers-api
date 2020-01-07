@@ -40,6 +40,7 @@ public class User {
 
     @Email(message = "A valid email is required")
     @NotBlank(message = "Email is required.")
+    @Column(unique = true, updatable = false)
     private String email;
 
     @NotBlank(message = "Password is required.")
@@ -51,4 +52,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Booking> bookings;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<UserDocument> documents;
 }
