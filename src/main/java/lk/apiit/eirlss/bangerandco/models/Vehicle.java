@@ -8,6 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -38,5 +39,10 @@ public class Vehicle {
     private String category;
 
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Booking> bookings;
+    private List<Booking> bookings = new ArrayList<>();
+
+    public void removeBooking(Booking booking) {
+        booking.setVehicle(null);
+        this.bookings.remove(booking);
+    }
 }

@@ -8,6 +8,7 @@ import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,15 +28,15 @@ public class Booking {
     private Date endDate;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user", nullable = false, referencedColumnName = "id")
+    @JoinColumn(name = "user", referencedColumnName = "id")
     @JsonIgnore
     private User user;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "vehicle", nullable = false, referencedColumnName = "id")
+    @JoinColumn(name = "vehicle", referencedColumnName = "id")
     @JsonIgnore
     private Vehicle vehicle;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Utility> utilities;
+    private List<BookingUtility> bookingUtilities = new ArrayList<>();
 }
