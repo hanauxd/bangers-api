@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -17,6 +19,7 @@ public class BookingDTO {
     private Date startDate;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private Date endDate;
+    private List<String> utilities = new ArrayList<>();
 
     public Booking transformToEntity() {
         Booking booking = new Booking();
