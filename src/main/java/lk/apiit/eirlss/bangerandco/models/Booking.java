@@ -23,8 +23,8 @@ public class Booking {
     @Column(length = 36)
     private String id;
     private String status;
-    private Date pickupDate;
-    private Date dropDate;
+    private Date startDate;
+    private Date endDate;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "user", nullable = false, referencedColumnName = "id")
