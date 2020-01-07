@@ -1,10 +1,10 @@
 package lk.apiit.eirlss.bangerandco.services;
 
-import lk.apiit.eirlss.bangerandco.exceptions.BadRequestException;
-import lk.apiit.eirlss.bangerandco.exceptions.ResourceNotFoundException;
+import lk.apiit.eirlss.bangerandco.exceptions.CustomException;
 import lk.apiit.eirlss.bangerandco.models.Utility;
 import lk.apiit.eirlss.bangerandco.repositories.UtilityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,13 +20,13 @@ public class UtilityService {
 
     public Utility createUtility(Utility newUtility) {
         Utility utility = utilityRepository.findByUtilityType(newUtility.getUtilityType());
-        if (utility != null) throw new BadRequestException("Utility type '" + newUtility.getUtilityType() + "' already exist.");
+        if (utility != null) throw new CustomException("Utility type '" + newUtility.getUtilityType() + "' already exist.", HttpStatus.BAD_REQUEST);
         return utilityRepository.save(newUtility);
     }
 
     public Utility getUtilityByType(String type) {
         Utility utility = utilityRepository.findByUtilityType(type);
-        if (utility == null) throw new ResourceNotFoundException("Utility type '" + type + "' not found.");
+        if (utility == null) throw new CustomException("Utility type '" + type + "' not found.", HttpStatus.NOT_FOUND);
         return utility;
     }
 

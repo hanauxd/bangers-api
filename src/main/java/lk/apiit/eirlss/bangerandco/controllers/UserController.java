@@ -1,6 +1,6 @@
 package lk.apiit.eirlss.bangerandco.controllers;
 
-import lk.apiit.eirlss.bangerandco.dto.UserDTO;
+import lk.apiit.eirlss.bangerandco.dto.requests.UserDTO;
 import lk.apiit.eirlss.bangerandco.models.User;
 import lk.apiit.eirlss.bangerandco.services.MapValidationErrorService;
 import lk.apiit.eirlss.bangerandco.services.UserService;
@@ -12,7 +12,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
 

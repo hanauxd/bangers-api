@@ -1,10 +1,10 @@
 package lk.apiit.eirlss.bangerandco.services;
 
-import lk.apiit.eirlss.bangerandco.exceptions.BadRequestException;
-import lk.apiit.eirlss.bangerandco.exceptions.ResourceNotFoundException;
+import lk.apiit.eirlss.bangerandco.exceptions.CustomException;
 import lk.apiit.eirlss.bangerandco.models.Vehicle;
 import lk.apiit.eirlss.bangerandco.repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public class VehicleService {
 
     public Vehicle createVehicle(Vehicle vehicle) {
         boolean isExist = vehicleRepository.findByLicense(vehicle.getLicense()).isPresent();
-        if (isExist) throw new BadRequestException("License number already exist.");
+        if (isExist) throw new CustomException("License number already exist.", HttpStatus.BAD_REQUEST);
         return vehicleRepository.save(vehicle);
     }
 
@@ -30,7 +30,7 @@ public class VehicleService {
 
     public Vehicle getVehicleByLicense(String license) {
         Vehicle vehicle = vehicleRepository.findByLicense(license).orElse(null);
-        if (vehicle == null) throw new ResourceNotFoundException("Vehicle not found");
+        if (vehicle == null) throw new CustomException("Vehicle not found.", HttpStatus.NOT_FOUND);
         return vehicle;
     }
 
