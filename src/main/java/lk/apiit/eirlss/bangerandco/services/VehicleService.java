@@ -28,14 +28,14 @@ public class VehicleService {
         return vehicleRepository.findAll();
     }
 
-    public Vehicle getVehicleByLicense(String license) {
-        Vehicle vehicle = vehicleRepository.findByLicense(license).orElse(null);
+    public Vehicle getVehicleById(String id) {
+        Vehicle vehicle = vehicleRepository.findById(id).orElse(null);
         if (vehicle == null) throw new CustomException("Vehicle not found.", HttpStatus.NOT_FOUND);
         return vehicle;
     }
 
-    public Vehicle updateVehicle(String license, Vehicle vehicle) {
-        Vehicle persistedVehicle = getVehicleByLicense(license);
+    public Vehicle updateVehicle(String id, Vehicle vehicle) {
+        Vehicle persistedVehicle = getVehicleById(id);
         persistedVehicle.setDescription(vehicle.getDescription());
         persistedVehicle.setBrand(vehicle.getBrand());
         persistedVehicle.setCategory(vehicle.getCategory());
@@ -44,8 +44,8 @@ public class VehicleService {
         return vehicleRepository.save(persistedVehicle);
     }
 
-    public void deleteVehicle(String license) {
-        Vehicle vehicle = getVehicleByLicense(license);
+    public void deleteVehicle(String id) {
+        Vehicle vehicle = getVehicleById(id);
         vehicleRepository.delete(vehicle);
     }
 }
