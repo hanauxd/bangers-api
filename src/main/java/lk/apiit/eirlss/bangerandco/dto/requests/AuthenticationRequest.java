@@ -1,4 +1,4 @@
-package lk.apiit.eirlss.bangerandco.models;
+package lk.apiit.eirlss.bangerandco.dto.requests;
 
 import lombok.Data;
 
