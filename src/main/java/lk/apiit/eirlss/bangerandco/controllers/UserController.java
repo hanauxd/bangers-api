@@ -18,13 +18,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private UserService service;
+    private UserService userService;
     private ModelMapper modelMapper;
     private MapValidationErrorService mapValidationErrorService;
 
     @Autowired
-    public UserController(UserService service, MapValidationErrorService mapValidationErrorService) {
-        this.service = service;
+    public UserController(UserService userService, MapValidationErrorService mapValidationErrorService) {
+        this.userService = userService;
         this.modelMapper = new ModelMapper();
         this.mapValidationErrorService = mapValidationErrorService;
     }
@@ -32,7 +32,7 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<User> userList = service.getAllUsers();
+        List<User> userList = userService.getAllUsers();
         List<UserDTO> dtoList = Arrays.asList(modelMapper.map(userList, UserDTO[].class));
         return new ResponseEntity<>(dtoList, HttpStatus.OK);
     }
@@ -40,7 +40,7 @@ public class UserController {
     @PreAuthorize("hasAnyRole('USER', 'STAFF', 'ADMIN')")
     @GetMapping("/{id}")
     public UserDTO getUserById(@PathVariable String id) {
-        User user = service.getUserById(id);
+        User user = userService.getUserById(id);
         return modelMapper.map(user, UserDTO.class);
     }
 
@@ -48,9 +48,9 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(@RequestBody UserDTO userDTO, @PathVariable String id, BindingResult result) {
         if (result.hasErrors()) return mapValidationErrorService.mapValidationErrorService(result);
-        User user = service.getUserById(id);
+        User user = userService.getUserById(id);
         modelMapper.map(userDTO, user);
-        User newUser = service.updateUser(user);
+        User newUser = userService.updateUser(user);
         UserDTO dto = modelMapper.map(newUser, UserDTO.class);
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
@@ -58,7 +58,14 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable String id) {
-        service.deleteUser(id);
+        userService.deleteUser(id);
         return new ResponseEntity<>("User is deleted.", HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PostMapping("/blacklist/{id}")
+    public ResponseEntity<?> blacklistUser(@PathVariable String id) {
+        User user = userService.blacklistUser(id);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }
