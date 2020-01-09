@@ -47,8 +47,6 @@ public class User {
     @NotBlank(message = "Password is required.")
     private String password;
 
-    private boolean newUser;
-
     private boolean blacklisted;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -60,5 +58,10 @@ public class User {
     public void removeBooking(Booking booking) {
         booking.setUser(null);
         this.bookings.remove(booking);
+    }
+
+    public void removeUserDocument(UserDocument document) {
+        document.setUser(null);
+        this.documents.remove(document);
     }
 }
