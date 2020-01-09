@@ -1,5 +1,6 @@
 package lk.apiit.eirlss.bangerandco.dto.requests;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.ToString;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -23,7 +25,8 @@ public class UserDTO {
     private String lastName;
 
     @NotBlank(message = "Date of birth is required.")
-    private String dob;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private Date dob;
 
     @NotBlank(message = "Phone number is required.")
     private String phone;
@@ -34,8 +37,6 @@ public class UserDTO {
 
     @NotBlank(message = "Password is required.")
     private String password;
-
-    private boolean newUser;
 
     private boolean blacklisted;
 }
