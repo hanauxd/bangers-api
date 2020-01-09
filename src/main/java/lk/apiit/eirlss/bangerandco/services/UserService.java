@@ -53,6 +53,13 @@ public class UserService {
         repository.delete(user);
     }
 
+    public User blacklistUser(String id) {
+        User user = getUserById(id);
+        boolean blacklisted = user.isBlacklisted();
+        user.setBlacklisted(!blacklisted);
+        return repository.save(user);
+    }
+
     private String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
