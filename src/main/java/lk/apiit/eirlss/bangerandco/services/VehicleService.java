@@ -41,6 +41,10 @@ public class VehicleService {
         persistedVehicle.setCategory(vehicle.getCategory());
         persistedVehicle.setModel(vehicle.getModel());
         persistedVehicle.setLicense(vehicle.getLicense());
+        persistedVehicle.setFuelType(vehicle.getFuelType());
+        persistedVehicle.setTransmissionType(vehicle.getTransmissionType());
+        persistedVehicle.setPrice(vehicle.getPrice());
+        persistedVehicle.setSize(vehicle.getSize());
         return vehicleRepository.save(persistedVehicle);
     }
 
