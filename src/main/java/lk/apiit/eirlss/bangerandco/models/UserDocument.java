@@ -20,8 +20,7 @@ public class UserDocument {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(length = 36)
     private String id;
-    private String documentPath;
-    private String documentType;
+    private String filename;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "user", nullable = false, referencedColumnName = "id")
