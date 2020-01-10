@@ -9,26 +9,35 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class BookingService {
     private BookingRepository bookingRepository;
     private UtilityService utilityService;
     private BookingUtilityRepository bookingUtilityRepository;
+    private BookingValidationService validationService;
 
     @Autowired
     public BookingService(
             BookingRepository bookingRepository,
             UtilityService utilityService,
-            BookingUtilityRepository bookingUtilityRepository) {
+            BookingUtilityRepository bookingUtilityRepository,
+            BookingValidationService validationService
+    ) {
         this.bookingRepository = bookingRepository;
         this.utilityService = utilityService;
         this.bookingUtilityRepository = bookingUtilityRepository;
+        this.validationService = validationService;
     }
 
     public Booking createBooking(Booking booking, Vehicle vehicle, List<String> utilities, User user) {
-        checkVehicleAvailability(vehicle, booking.getEndDate(), booking.getStartDate());
+        validationService.validateBookingAge(user, vehicle);
+        Date startDate = booking.getStartDate();
+        Date endDate = booking.getEndDate();
+        validationService.validateBookingPeriod(startDate, endDate);
+        validationService.checkVehicleAvailability(vehicle, endDate, startDate);
         booking.setVehicle(vehicle);
         booking.setUser(user);
         addUtilitiesToBooking(booking, utilities);
@@ -47,11 +56,13 @@ public class BookingService {
     }
 
     public Booking updateBooking(Booking booking, Vehicle vehicle, List<String> utilities) {
+        validationService.validateBookingAge(booking.getUser(), vehicle);
         List<Booking> bookings = bookingRepository.findByVehicleAndStartDateLessThanEqualAndEndDateGreaterThanEqual(vehicle, booking.getEndDate(), booking.getStartDate());
         for (Booking persistedBooking : bookings) {
             if (!persistedBooking.getId().equals(booking.getId()))
                 throw new CustomException("Vehicle is not available for the selected date range.", HttpStatus.BAD_REQUEST);
         }
+        validationService.validateBookingPeriod(booking.getStartDate(), booking.getEndDate());
         booking.setVehicle(vehicle);
         addUtilitiesToBooking(booking, utilities);
         calculateBookingPrice(booking);
@@ -89,36 +100,13 @@ public class BookingService {
         return bookings.size() > 0;
     }
 
-    private void checkVehicleAvailability(Vehicle vehicle, Date endDate, Date startDate) {
-        List<Booking> bookings = bookingRepository.findByVehicleAndStartDateLessThanEqualAndEndDateGreaterThanEqual(vehicle, endDate, startDate);
-        if (bookings.size() > 0) throw new CustomException("Vehicle is not available for the selected date range.", HttpStatus.BAD_REQUEST);
-    }
-
-    private void checkUtilityAvailability(Utility utility, Date endDate, Date startDate) {
-        int count = 0;
-        List<Booking> bookings = bookingRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(endDate, startDate);
-
-        for (Booking book : bookings) {
-            List<BookingUtility> bookingUtilities = book.getBookingUtilities();
-            for (BookingUtility bookingUtility : bookingUtilities) {
-                String type = bookingUtility.getUtility().getUtilityType();
-                if (utility.getUtilityType().equals(type)) {
-                    count++;
-                }
-            }
-        }
-
-        if (count >= utility.getQuantity())
-            throw new CustomException("Utility '" + utility.getUtilityType() + "' is not available for the selected date range.", HttpStatus.BAD_REQUEST);
-    }
-
     private void addUtilitiesToBooking(Booking booking, List<String> utilities) {
         if (booking.getId() != null) {
             removeOldUtilities(booking);
         }
         for (String utilityType : utilities) {
             Utility utility = utilityService.getUtilityByType(utilityType);
-            checkUtilityAvailability(utility, booking.getEndDate(), booking.getStartDate());
+            validationService.checkUtilityAvailability(utility, booking.getEndDate(), booking.getStartDate());
             BookingUtility bookingUtility = new BookingUtility(booking, utility);
             booking.getBookingUtilities().add(bookingUtility);
             utility.getBookingUtilities().add(bookingUtility);
@@ -138,14 +126,8 @@ public class BookingService {
 
     private void calculateBookingPrice(Booking booking) {
         double unitPrice = booking.getVehicle().getPrice();
-        long days = ChronoUnit.DAYS.between(booking.getStartDate().toInstant(), booking.getEndDate().toInstant());
-
-        days++;
+        long days = validationService.getDuration(booking.getStartDate(), booking.getEndDate(), ChronoUnit.DAYS) + 1;
         double totalPrice = days * unitPrice;
         booking.setPrice(totalPrice);
-
-        System.out.println("Unit Price: " + unitPrice);
-        System.out.println("No of days: " + days);
-        System.out.println("TOTAL PRICE: " + totalPrice);
     }
 }
