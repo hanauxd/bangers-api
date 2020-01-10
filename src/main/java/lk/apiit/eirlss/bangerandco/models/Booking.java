@@ -8,6 +8,7 @@ import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -25,17 +26,24 @@ public class Booking {
     private String status;
     private Date startDate;
     private Date endDate;
+    private double price;
+    private boolean lateReturn;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user", nullable = false, referencedColumnName = "id")
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user", referencedColumnName = "id")
     @JsonIgnore
     private User user;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "vehicle", nullable = false, referencedColumnName = "id")
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "vehicle", referencedColumnName = "id")
     @JsonIgnore
     private Vehicle vehicle;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Utility> utilities;
+    private List<BookingUtility> bookingUtilities = new ArrayList<>();
+
+    public void removeBookingUtility(BookingUtility bookingUtility) {
+        bookingUtility.setUtility(null);
+        this.bookingUtilities.remove(bookingUtility);
+    }
 }
