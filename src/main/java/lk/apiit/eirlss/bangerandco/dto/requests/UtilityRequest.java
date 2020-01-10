@@ -4,7 +4,7 @@ import lk.apiit.eirlss.bangerandco.models.Utility;
 import lombok.Data;
 
 @Data
-public class UtilityDTO {
+public class UtilityRequest {
     private String utilityType;
     private int quantity;
 
