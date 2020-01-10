@@ -18,8 +18,9 @@ import java.util.UUID;
 
 @Service
 public class FileService {
-    @Value("${app.path.user-documents}")
+    @Value("${app.document.store-location}")
     private String documentLocation;
+    String workingDirectory = System.getProperty("user.dir");
 
     public String store(MultipartFile file) {
         try {
@@ -46,7 +47,7 @@ public class FileService {
     }
 
     public Path getPath(String filename) {
-        String path = documentLocation + File.separator + filename;
+        String path = workingDirectory + File.separator + documentLocation + File.separator + filename;
         return Paths.get(path);
     }
 
