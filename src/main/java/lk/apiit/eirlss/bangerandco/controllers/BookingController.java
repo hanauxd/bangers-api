@@ -1,6 +1,6 @@
 package lk.apiit.eirlss.bangerandco.controllers;
 
-import lk.apiit.eirlss.bangerandco.dto.requests.BookingDTO;
+import lk.apiit.eirlss.bangerandco.dto.requests.BookingRequest;
 import lk.apiit.eirlss.bangerandco.models.Booking;
 import lk.apiit.eirlss.bangerandco.models.User;
 import lk.apiit.eirlss.bangerandco.models.Vehicle;
@@ -41,7 +41,7 @@ public class BookingController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'STAFF')")
     @PostMapping
-    public ResponseEntity<?> createBooking(@RequestBody BookingDTO dto, Authentication auth, BindingResult result) {
+    public ResponseEntity<?> createBooking(@RequestBody BookingRequest dto, Authentication auth, BindingResult result) {
         if (result.hasErrors()) return mapValidationErrorService.mapValidationErrorService(result);
         User user = userService.getUserByEmail(auth.getName());
         Vehicle vehicle = vehicleService.getVehicleById(dto.getVehicleId());
@@ -65,7 +65,7 @@ public class BookingController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'STAFF')")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateBooking(@PathVariable String id, @RequestBody BookingDTO dto, BindingResult result) {
+    public ResponseEntity<?> updateBooking(@PathVariable String id, @RequestBody BookingRequest dto, BindingResult result) {
 
         if (result.hasErrors()) return mapValidationErrorService.mapValidationErrorService(result);
         Vehicle vehicle = vehicleService.getVehicleById(dto.getVehicleId());
@@ -79,7 +79,7 @@ public class BookingController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @PostMapping("/confirm/{id}")
-    public ResponseEntity<?> confirmBooking(@PathVariable String id, @RequestBody BookingDTO dto) {
+    public ResponseEntity<?> confirmBooking(@PathVariable String id, @RequestBody BookingRequest dto) {
         Booking booking = bookingService.confirmBooking(id, dto.getStatus(), dto.isLateReturn(), dto.getUtilities());
         return new ResponseEntity<>(booking, HttpStatus.OK);
     }

@@ -1,6 +1,6 @@
 package lk.apiit.eirlss.bangerandco.controllers;
 
-import lk.apiit.eirlss.bangerandco.dto.requests.UtilityDTO;
+import lk.apiit.eirlss.bangerandco.dto.requests.UtilityRequest;
 import lk.apiit.eirlss.bangerandco.models.Utility;
 import lk.apiit.eirlss.bangerandco.services.MapValidationErrorService;
 import lk.apiit.eirlss.bangerandco.services.UtilityService;
@@ -25,7 +25,7 @@ public class UtilityController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createUtility(@RequestBody UtilityDTO dto, BindingResult result) {
+    public ResponseEntity<?> createUtility(@RequestBody UtilityRequest dto, BindingResult result) {
         if (result.hasErrors()) return mapValidationErrorService.mapValidationErrorService(result);
         Utility utility = utilityService.createUtility(dto.transformToEntity());
         return new ResponseEntity<>(utility, HttpStatus.CREATED);

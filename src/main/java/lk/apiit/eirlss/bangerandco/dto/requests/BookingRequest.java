@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingDTO {
+public class BookingRequest {
     private String vehicleId;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
     private Date startDate;
