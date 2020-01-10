@@ -1,5 +1,6 @@
 package lk.apiit.eirlss.bangerandco.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,8 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -33,8 +36,8 @@ public class User {
     @NotBlank(message = "Last name is required.")
     private String lastName;
 
-    @NotBlank(message = "Date of birth is required.")
-    private String dob;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private Date dob;
 
     @NotBlank(message = "Phone number is required.")
     private String phone;
@@ -63,5 +66,17 @@ public class User {
     public void removeUserDocument(UserDocument document) {
         document.setUser(null);
         this.documents.remove(document);
+    }
+
+    public int getAge() {
+        Calendar dob = Calendar.getInstance();
+        dob.setTime(this.dob);
+        Calendar now = Calendar.getInstance();
+        now.setTime(new Date());
+        int years = now.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
+        if (dob.get(Calendar.DAY_OF_YEAR) > now.get(Calendar.DAY_OF_YEAR)) {
+            years--;
+        }
+        return years;
     }
 }
