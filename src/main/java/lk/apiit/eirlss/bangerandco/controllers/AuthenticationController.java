@@ -5,6 +5,7 @@ import lk.apiit.eirlss.bangerandco.dto.requests.UserDTO;
 import lk.apiit.eirlss.bangerandco.dto.responses.AuthenticationResponse;
 import lk.apiit.eirlss.bangerandco.exceptions.CustomException;
 import lk.apiit.eirlss.bangerandco.models.User;
+import lk.apiit.eirlss.bangerandco.models.UserDetailsImpl;
 import lk.apiit.eirlss.bangerandco.security.JwtUtil;
 import lk.apiit.eirlss.bangerandco.services.MapValidationErrorService;
 import lk.apiit.eirlss.bangerandco.services.UserDetailsServiceImpl;
@@ -55,9 +56,10 @@ public class AuthenticationController {
     public ResponseEntity<?> login(@RequestBody AuthenticationRequest authRequest) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
-            UserDetails userDetails = userServiceDetails.loadUserByUsername(authRequest.getUsername());
+            UserDetailsImpl userDetails = (UserDetailsImpl) userServiceDetails.loadUserByUsername(authRequest.getUsername());
             String jwt = jwtUtil.generateToken(userDetails);
-            return ResponseEntity.ok(new AuthenticationResponse(userDetails.getUsername(), expiryTime, jwt));
+            String userRole = userDetails.getUserRole();
+            return ResponseEntity.ok(new AuthenticationResponse(userDetails.getUsername(), expiryTime, jwt, userRole));
         } catch (BadCredentialsException e) {
             throw new CustomException("Invalid username or password", HttpStatus.FORBIDDEN);
         }
