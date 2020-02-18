@@ -1,5 +1,6 @@
 package lk.apiit.eirlss.bangerandco.security;
 
+import lk.apiit.eirlss.bangerandco.models.UserDetailsImpl;
 import lk.apiit.eirlss.bangerandco.services.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +48,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                UserDetailsImpl userDetails = (UserDetailsImpl) this.userDetailsService.loadUserByUsername(username);
                 if (jwtUtil.validateToken(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     token.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
