@@ -18,10 +18,11 @@ public class UtilityService {
         this.utilityRepository = utilityRepository;
     }
 
-    public Utility createUtility(Utility newUtility) {
+    public List<Utility> createUtility(Utility newUtility) {
         Utility utility = utilityRepository.findByUtilityType(newUtility.getUtilityType());
         if (utility != null) throw new CustomException("Utility type '" + newUtility.getUtilityType() + "' already exist.", HttpStatus.BAD_REQUEST);
-        return utilityRepository.save(newUtility);
+        utilityRepository.save(newUtility);
+        return getAllUtilities();
     }
 
     public Utility getUtilityByType(String type) {
@@ -38,10 +39,11 @@ public class UtilityService {
         return utilityRepository.findByQuantityGreaterThan(0);
     }
 
-    public Utility updateUtility(String type, Utility newUtility) {
+    public List<Utility> updateUtility(String type, Utility newUtility) {
         Utility utility = getUtilityByType(type);
         utility.setQuantity(newUtility.getQuantity());
-        return utilityRepository.save(utility);
+        utilityRepository.save(utility);
+        return getAllUtilities();
     }
 
     public void deleteUtility(String type) {
