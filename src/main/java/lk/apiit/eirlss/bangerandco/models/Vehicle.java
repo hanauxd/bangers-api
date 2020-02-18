@@ -1,5 +1,6 @@
 package lk.apiit.eirlss.bangerandco.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -50,6 +51,7 @@ public class Vehicle {
     private double price;
 
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Booking> bookings = new ArrayList<>();
 
     public void removeBooking(Booking booking) {

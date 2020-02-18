@@ -1,5 +1,6 @@
 package lk.apiit.eirlss.bangerandco.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,7 @@ public class Utility {
     private int quantity;
 
     @OneToMany(mappedBy = "utility", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<BookingUtility> bookingUtilities = new ArrayList<>();
 
     public void removeBookingUtility(BookingUtility bookingUtility) {

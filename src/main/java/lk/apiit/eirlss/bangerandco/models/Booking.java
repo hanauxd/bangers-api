@@ -36,14 +36,13 @@ public class Booking {
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle", referencedColumnName = "id")
-    @JsonIgnore
     private Vehicle vehicle;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<BookingUtility> bookingUtilities = new ArrayList<>();
 
     public void removeBookingUtility(BookingUtility bookingUtility) {
-        bookingUtility.setUtility(null);
+        bookingUtility.setBooking(null);
         this.bookingUtilities.remove(bookingUtility);
     }
 }
