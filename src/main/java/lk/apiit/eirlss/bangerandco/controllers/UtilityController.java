@@ -28,8 +28,8 @@ public class UtilityController {
     @PostMapping
     public ResponseEntity<?> createUtility(@RequestBody UtilityRequest dto, BindingResult result) {
         if (result.hasErrors()) return mapValidationErrorService.mapValidationErrorService(result);
-        Utility utility = utilityService.createUtility(dto.transformToEntity());
-        return new ResponseEntity<>(utility, HttpStatus.CREATED);
+        List<Utility> utilities = utilityService.createUtility(dto.transformToEntity());
+        return new ResponseEntity<>(utilities, HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -47,8 +47,8 @@ public class UtilityController {
     @PutMapping("/{type}")
     public ResponseEntity<?> updateUtility(@PathVariable String type, @RequestBody Utility utility, BindingResult result) {
         if (result.hasErrors()) mapValidationErrorService.mapValidationErrorService(result);
-        Utility updatedUtility = utilityService.updateUtility(type, utility);
-        return new ResponseEntity<>(updatedUtility, HttpStatus.OK);
+        List<Utility> utilities = utilityService.updateUtility(type, utility);
+        return new ResponseEntity<>(utilities, HttpStatus.OK);
     }
 
     @DeleteMapping("/{type}")
