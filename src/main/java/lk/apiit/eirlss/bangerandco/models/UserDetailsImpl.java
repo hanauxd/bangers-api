@@ -15,12 +15,14 @@ public class UserDetailsImpl implements UserDetails {
     private String password;
     private boolean blacklisted;
     private List<GrantedAuthority> authorities;
+    private String userRole;
 
     public UserDetailsImpl(User user) {
         this.email = user.getEmail();
         this.password = user.getPassword();
         this.blacklisted = user.isBlacklisted();
         this.authorities = Arrays.stream(user.getRole().split(",")).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        this.userRole = user.getRole();
     }
 
     @Override
@@ -56,5 +58,9 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public boolean isEnabled() {
         return !blacklisted;
+    }
+
+    public String getUserRole() {
+        return userRole;
     }
 }
