@@ -9,4 +9,5 @@ public class AuthenticationResponse {
     private final String username;
     private final String expiryTime;
     private final String jwt;
+    private final String userRole;
 }
