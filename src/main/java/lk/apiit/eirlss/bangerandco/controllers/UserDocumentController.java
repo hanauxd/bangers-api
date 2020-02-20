@@ -40,8 +40,8 @@ public class UserDocumentController {
     @PostMapping("/upload")
     public ResponseEntity<?> createUserDocument(@RequestParam("file") MultipartFile uploadedFile, Authentication auth) {
         User user = userService.getUserByEmail(auth.getName());
-        UserDocument persistedDocument = userDocumentService.createUserDocument(uploadedFile, user);
-        return new ResponseEntity<>(persistedDocument, HttpStatus.CREATED);
+        userDocumentService.createUserDocument(uploadedFile, user);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
     @GetMapping("/download/{filename}")
