@@ -41,8 +41,7 @@ public class VehicleController {
         return new ResponseEntity<>(vehicles, HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<?> getAllVehicles() {
         List<Vehicle> vehicles = vehicleService.getAllVehicles();
         return new ResponseEntity<>(vehicles, HttpStatus.OK);
