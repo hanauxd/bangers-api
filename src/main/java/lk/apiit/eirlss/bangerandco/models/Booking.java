@@ -1,5 +1,6 @@
 package lk.apiit.eirlss.bangerandco.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,7 +25,9 @@ public class Booking {
     @Column(length = 36)
     private String id;
     private String status;
+    @JsonFormat(pattern = "dd/MM/yyyy, HH:mm:ss")
     private Date startDate;
+    @JsonFormat(pattern = "dd/MM/yyyy, HH:mm:ss")
     private Date endDate;
     private double price;
     private boolean lateReturn;

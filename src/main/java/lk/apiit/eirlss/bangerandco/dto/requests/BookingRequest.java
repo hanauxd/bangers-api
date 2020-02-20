@@ -15,9 +15,9 @@ import java.util.List;
 @NoArgsConstructor
 public class BookingRequest {
     private String vehicleId;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
+    @JsonFormat(pattern = "dd/MM/yyyy, HH:mm:ss")
     private Date startDate;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
+    @JsonFormat(pattern = "dd/MM/yyyy, HH:mm:ss")
     private Date endDate;
     private String status;
     private boolean lateReturn;
