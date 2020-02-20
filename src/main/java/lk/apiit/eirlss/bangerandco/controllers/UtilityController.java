@@ -7,6 +7,7 @@ import lk.apiit.eirlss.bangerandco.services.UtilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ public class UtilityController {
         this.mapValidationErrorService = mapValidationErrorService;
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'STAFF', 'ADMIN')")
     @PostMapping
     public ResponseEntity<?> createUtility(@RequestBody UtilityRequest dto, BindingResult result) {
         if (result.hasErrors()) return mapValidationErrorService.mapValidationErrorService(result);
@@ -44,6 +46,7 @@ public class UtilityController {
         return new ResponseEntity<>(utilities, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'STAFF', 'ADMIN')")
     @PutMapping("/{type}")
     public ResponseEntity<?> updateUtility(@PathVariable String type, @RequestBody Utility utility, BindingResult result) {
         if (result.hasErrors()) mapValidationErrorService.mapValidationErrorService(result);
@@ -51,6 +54,7 @@ public class UtilityController {
         return new ResponseEntity<>(utilities, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'STAFF', 'ADMIN')")
     @DeleteMapping("/{type}")
     public ResponseEntity<?> deleteUtility(@PathVariable String type) {
         utilityService.deleteUtility(type);
