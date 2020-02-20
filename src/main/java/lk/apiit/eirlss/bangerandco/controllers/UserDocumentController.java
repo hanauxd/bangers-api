@@ -1,16 +1,12 @@
 package lk.apiit.eirlss.bangerandco.controllers;
 
-import lk.apiit.eirlss.bangerandco.exceptions.CustomException;
 import lk.apiit.eirlss.bangerandco.models.User;
 import lk.apiit.eirlss.bangerandco.models.UserDocument;
 import lk.apiit.eirlss.bangerandco.services.FileService;
 import lk.apiit.eirlss.bangerandco.services.UserDocumentService;
 import lk.apiit.eirlss.bangerandco.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -18,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -46,17 +41,7 @@ public class UserDocumentController {
 
     @GetMapping("/download/{filename}")
     public ResponseEntity<?> downloadFile(@PathVariable String filename, HttpServletRequest request) {
-        try {
-            UrlResource resource = fileService.getResource(filename);
-            String mimeType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-            return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.parseMediaType(mimeType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename())
-                    .body(resource);
-        } catch (IOException e) {
-            throw new CustomException("File not found.", HttpStatus.NOT_FOUND);
-        }
+        return fileService.downloadFile(filename, request);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'STAFF', 'ADMIN')")
