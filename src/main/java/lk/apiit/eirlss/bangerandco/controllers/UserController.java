@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,10 +41,19 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('USER', 'STAFF', 'ADMIN')")
     @GetMapping("/{id}")
-    public UserDTO getUserById(@PathVariable String id) {
+    public ResponseEntity<?> getUserById(@PathVariable String id) {
         User user = userService.getUserById(id);
-        return modelMapper.map(user, UserDTO.class);
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+        return ResponseEntity.ok(userDTO);
     }
+
+    @PreAuthorize("hasAnyRole('USER', 'STAFF', 'ADMIN')")
+    @GetMapping("/auth-user")
+    public ResponseEntity<?> getAuthUser(Authentication auth) {
+        User user = userService.getUserByEmail(auth.getName());
+        return ResponseEntity.ok(user);
+    }
+
 
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
     @PutMapping("/{id}")

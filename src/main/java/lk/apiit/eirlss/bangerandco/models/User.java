@@ -1,6 +1,7 @@
 package lk.apiit.eirlss.bangerandco.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -48,11 +49,13 @@ public class User {
     private String email;
 
     @NotBlank(message = "Password is required.")
+    @JsonIgnore
     private String password;
 
     private boolean blacklisted;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Booking> bookings = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
