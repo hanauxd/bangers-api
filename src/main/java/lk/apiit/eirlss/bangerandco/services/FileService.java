@@ -3,10 +3,14 @@ package lk.apiit.eirlss.bangerandco.services;
 import lk.apiit.eirlss.bangerandco.exceptions.CustomException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -35,17 +39,6 @@ public class FileService {
         }
     }
 
-    public UrlResource getResource(String filename) {
-        try {
-            Path path = getPath(filename);
-            UrlResource resource = new UrlResource(path.toUri());
-            if (!resource.exists()) throw new CustomException("File not found.", HttpStatus.NOT_FOUND);
-            return resource;
-        } catch (MalformedURLException e) {
-            throw new CustomException("Failed to get the file path.", HttpStatus.BAD_REQUEST);
-        }
-    }
-
     public Path getPath(String filename) {
         String path = workingDirectory + File.separator + documentLocation + File.separator + filename;
         return Paths.get(path);
@@ -69,6 +62,31 @@ public class FileService {
                 throw new CustomException("Invalid file type.", HttpStatus.BAD_REQUEST);
         } catch (IOException e) {
             throw new CustomException("Failed to detect file type.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<?> downloadFile(String filename, HttpServletRequest request) {
+        try {
+            UrlResource resource = getResource(filename);
+            String mimeType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.parseMediaType(mimeType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename())
+                    .body(resource);
+        } catch (IOException e) {
+            throw new CustomException("File not found.", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    private UrlResource getResource(String filename) {
+        try {
+            Path path = getPath(filename);
+            UrlResource resource = new UrlResource(path.toUri());
+            if (!resource.exists()) throw new CustomException("File not found.", HttpStatus.NOT_FOUND);
+            return resource;
+        } catch (MalformedURLException e) {
+            throw new CustomException("Failed to get the file path.", HttpStatus.BAD_REQUEST);
         }
     }
 }
