@@ -66,8 +66,7 @@ public class BookingController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'STAFF')")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateBooking(@PathVariable String id, @RequestBody BookingRequest dto, BindingResult result) {
-
+    public ResponseEntity<?> extendBooking(@PathVariable String id, @RequestBody BookingRequest dto, BindingResult result) {
         if (result.hasErrors()) return mapValidationErrorService.mapValidationErrorService(result);
         Vehicle vehicle = vehicleService.getVehicleById(dto.getVehicleId());
         Booking booking = bookingService.getBookingById(id);
@@ -79,9 +78,21 @@ public class BookingController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    @PostMapping("/confirm/{id}")
-    public ResponseEntity<?> confirmBooking(@PathVariable String id, @RequestBody BookingRequest dto) {
-        Booking booking = bookingService.confirmBooking(id, dto.getStatus(), dto.isLateReturn(), dto.getUtilities());
+    @GetMapping
+    public ResponseEntity<?> getAllBookings() {
+        List<Booking> bookings = bookingService.getAllBookings();
+        return ResponseEntity.ok(bookings);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
+    @PostMapping("/update")
+    public ResponseEntity<?> updateBooking(@RequestParam String id, @RequestParam String status) {
+        Booking booking = bookingService.getBookingById(id);
+        booking.setStatus(status);
+        if ("Failed".equals(status)) {
+            String userId = booking.getUser().getId();
+            userService.blacklistUser(userId);
+        }
         return new ResponseEntity<>(booking, HttpStatus.OK);
     }
 
