@@ -55,6 +55,10 @@ public class BookingService {
         return bookingRepository.findById(id).orElseThrow(() -> new CustomException("Booking not found.", HttpStatus.NOT_FOUND));
     }
 
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
+    }
+
     public Booking updateBooking(Booking booking, Vehicle vehicle, List<String> utilities) {
         validationService.validateBookingAge(booking.getUser(), vehicle);
         List<Booking> bookings = bookingRepository.findByVehicleAndStartDateLessThanEqualAndEndDateGreaterThanEqual(vehicle, booking.getEndDate(), booking.getStartDate());
