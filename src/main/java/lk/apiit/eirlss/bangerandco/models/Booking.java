@@ -25,16 +25,15 @@ public class Booking {
     @Column(length = 36)
     private String id;
     private String status;
-    @JsonFormat(pattern = "dd/MM/yyyy, HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date startDate;
-    @JsonFormat(pattern = "dd/MM/yyyy, HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date endDate;
     private double price;
     private boolean lateReturn;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "user", referencedColumnName = "id")
-    @JsonIgnore
     private User user;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

@@ -22,9 +22,8 @@ public class BookingUtility {
     @JsonIgnore
     private Booking booking;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "utility", referencedColumnName = "id")
-    @JsonIgnore
     private Utility utility;
 
     public BookingUtility(Booking booking, Utility utility) {
