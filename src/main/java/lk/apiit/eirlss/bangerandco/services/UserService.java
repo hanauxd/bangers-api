@@ -27,8 +27,8 @@ public class UserService {
         return repository.save(user);
     }
 
-    public List<User> getAllUsers() {
-        return repository.findAll();
+    public List<User> getAllCustomers() {
+        return repository.findUsersByRole("ROLE_USER");
     }
 
     public User getUserById(String id) {
@@ -53,11 +53,15 @@ public class UserService {
         repository.delete(user);
     }
 
-    public User blacklistUser(String id) {
+    public List<User> blacklistUser(String id, boolean isBlacklisted) {
         User user = getUserById(id);
-        boolean blacklisted = user.isBlacklisted();
-        user.setBlacklisted(!blacklisted);
-        return repository.save(user);
+        user.setBlacklisted(isBlacklisted);
+        repository.save(user);
+       return getBlacklistedUsers();
+    }
+
+    public List<User> getBlacklistedUsers() {
+        return repository.findUsersByBlacklisted(true);
     }
 
     private String hashPassword(String password) {

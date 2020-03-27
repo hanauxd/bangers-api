@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class AuthenticationResponse {
+    private final String userId;
     private final String username;
     private final String expiryTime;
     private final String jwt;
