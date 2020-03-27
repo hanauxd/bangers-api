@@ -16,6 +16,7 @@ public class UserDetailsImpl implements UserDetails {
     private boolean blacklisted;
     private List<GrantedAuthority> authorities;
     private String userRole;
+    private String userId;
 
     public UserDetailsImpl(User user) {
         this.email = user.getEmail();
@@ -23,6 +24,7 @@ public class UserDetailsImpl implements UserDetails {
         this.blacklisted = user.isBlacklisted();
         this.authorities = Arrays.stream(user.getRole().split(",")).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
         this.userRole = user.getRole();
+        this.userId = user.getId();
     }
 
     @Override
@@ -62,5 +64,9 @@ public class UserDetailsImpl implements UserDetails {
 
     public String getUserRole() {
         return userRole;
+    }
+
+    public String getUserId() {
+        return userId;
     }
 }
