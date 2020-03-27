@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -23,6 +24,28 @@ public class BookingValidationService {
     public void checkVehicleAvailability(Vehicle vehicle, Date endDate, Date startDate) {
         List<Booking> bookings = bookingRepository.findByVehicleAndStartDateLessThanEqualAndEndDateGreaterThanEqual(vehicle, endDate, startDate);
         if (bookings.size() > 0) throw new CustomException("Vehicle is not available for the selected date range.", HttpStatus.BAD_REQUEST);
+    }
+
+    public void checkVehicleAvailabilityForNextDay(String bookingId, Date returnDate, Vehicle vehicle) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(returnDate);
+        calendar.add(Calendar.DATE, 1);
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        calendar.set(year, month, day, 0, 0, 0);
+        Date newStartDate = calendar.getTime();
+
+        calendar.set(year, month, day, 23, 59, 59);
+        Date newEndDate = calendar.getTime();
+
+        List<Booking> bookings = bookingRepository.findByVehicleAndStartDateLessThanEqualAndEndDateGreaterThanEqual(vehicle, newEndDate, newStartDate);
+
+        for (Booking persistedBooking : bookings) {
+            if (!persistedBooking.getId().equals(bookingId))
+                throw new CustomException("Vehicle is not available for the selected date range.", HttpStatus.BAD_REQUEST);
+        }
     }
 
     public void checkUtilityAvailability(Utility utility, Date endDate, Date startDate) {

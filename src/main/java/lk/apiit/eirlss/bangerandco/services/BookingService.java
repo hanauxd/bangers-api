@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -72,27 +71,7 @@ public class BookingService {
     }
 
     public Booking updateBooking(Booking booking, Vehicle vehicle) {
-        Date endDate = booking.getEndDate();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(endDate);
-        calendar.add(Calendar.DATE, 1);
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-        calendar.set(year, month, day, 0, 0, 0);
-        Date newStartDate = calendar.getTime();
-
-        calendar.set(year, month, day, 23, 59, 59);
-        Date newEndDate = calendar.getTime();
-
-        List<Booking> bookings = bookingRepository.findByVehicleAndStartDateLessThanEqualAndEndDateGreaterThanEqual(vehicle, newEndDate, newStartDate);
-
-        for (Booking persistedBooking : bookings) {
-            if (!persistedBooking.getId().equals(booking.getId()))
-                throw new CustomException("Vehicle is not available for the selected date range.", HttpStatus.BAD_REQUEST);
-        }
-
+        validationService.checkVehicleAvailabilityForNextDay(booking.getId(), booking.getEndDate(), vehicle);
         validationService.validateBookingPeriod(booking.getStartDate(), booking.getEndDate());
         booking.setVehicle(vehicle);
         calculateBookingPrice(booking);
