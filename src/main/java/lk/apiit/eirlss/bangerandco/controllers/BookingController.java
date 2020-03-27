@@ -9,6 +9,7 @@ import lk.apiit.eirlss.bangerandco.services.MapValidationErrorService;
 import lk.apiit.eirlss.bangerandco.services.UserService;
 import lk.apiit.eirlss.bangerandco.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -58,32 +60,42 @@ public class BookingController {
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'STAFF')")
     @GetMapping("/user")
-    public ResponseEntity<?> getBookingsByUser(Authentication auth) {
-        User loggedInUser = userService.getUserByEmail(auth.getName());
-        List<Booking> bookings = bookingService.getBookingsByUser(loggedInUser);
+    public ResponseEntity<?> getBookingsByUser(Pageable pageable, @RequestParam String id) {
+        User user = userService.getUserById(id);
+        List<Booking> bookings = bookingService.getBookingsByUser(user, pageable);
         return ResponseEntity.ok(bookings);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'STAFF')")
-    @PutMapping("/{id}")
+    @PutMapping("/extend/{id}")
     public ResponseEntity<?> extendBooking(@PathVariable String id, @RequestBody BookingRequest dto, BindingResult result) {
         if (result.hasErrors()) return mapValidationErrorService.mapValidationErrorService(result);
         Vehicle vehicle = vehicleService.getVehicleById(dto.getVehicleId());
         Booking booking = bookingService.getBookingById(id);
-        dto.updateBooking(booking);
-        List<String> utilities = dto.getUtilities();
+        booking.setEndDate(dto.getEndDate());
 
-        Booking updatedBooking = bookingService.updateBooking(booking, vehicle, utilities);
+        Booking updatedBooking = bookingService.updateBooking(booking, vehicle);
+        return ResponseEntity.ok(updatedBooking);
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'STAFF')")
+    @PutMapping("/utils/{id}")
+    public ResponseEntity<?> updateUtils(@PathVariable String id, @RequestBody BookingRequest dto) {
+        Booking booking = bookingService.getBookingById(id);
+        List<String> utilities = dto.getUtilities();
+        Booking updatedBooking = bookingService.updateUtils(booking, utilities);
         return ResponseEntity.ok(updatedBooking);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @GetMapping
-    public ResponseEntity<?> getAllBookings() {
-        List<Booking> bookings = bookingService.getAllBookings();
+    public ResponseEntity<?> getAllBookings(Pageable pageable) {
+        List<Booking> bookings = bookingService.getAllBookings(pageable);
         return ResponseEntity.ok(bookings);
     }
 
+    @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
     @PostMapping("/update")
     public ResponseEntity<?> updateBooking(@RequestParam String id, @RequestParam String status) {
@@ -91,7 +103,7 @@ public class BookingController {
         booking.setStatus(status);
         if ("Failed".equals(status)) {
             String userId = booking.getUser().getId();
-            userService.blacklistUser(userId);
+            userService.blacklistUser(userId, true);
         }
         return new ResponseEntity<>(booking, HttpStatus.OK);
     }

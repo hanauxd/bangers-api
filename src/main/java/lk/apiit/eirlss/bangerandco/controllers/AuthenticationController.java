@@ -59,7 +59,8 @@ public class AuthenticationController {
             UserDetailsImpl userDetails = (UserDetailsImpl) userServiceDetails.loadUserByUsername(authRequest.getUsername());
             String jwt = jwtUtil.generateToken(userDetails);
             String userRole = userDetails.getUserRole();
-            return ResponseEntity.ok(new AuthenticationResponse(userDetails.getUsername(), expiryTime, jwt, userRole));
+            String userId = userDetails.getUserId();
+            return ResponseEntity.ok(new AuthenticationResponse(userId, userDetails.getUsername(), expiryTime, jwt, userRole));
         } catch (BadCredentialsException e) {
             throw new CustomException("Invalid username or password", HttpStatus.FORBIDDEN);
         }
