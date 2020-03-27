@@ -33,8 +33,8 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<User> userList = userService.getAllUsers();
+    public ResponseEntity<List<UserDTO>> getAllCustomers() {
+        List<User> userList = userService.getAllCustomers();
         List<UserDTO> dtoList = Arrays.asList(modelMapper.map(userList, UserDTO[].class));
         return new ResponseEntity<>(dtoList, HttpStatus.OK);
     }
@@ -54,6 +54,12 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'STAFF', 'ADMIN')")
+    @PostMapping("/username")
+    public ResponseEntity<?> getUserByEmail(@RequestParam String email) {
+        User user = userService.getUserByEmail(email);
+        return ResponseEntity.ok(user);
+    }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
     @PutMapping("/{id}")
@@ -76,7 +82,14 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     @PostMapping("/blacklist/{id}")
     public ResponseEntity<?> blacklistUser(@PathVariable String id) {
-        User user = userService.blacklistUser(id);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        List<User> blacklistUser = userService.blacklistUser(id, false);
+        return new ResponseEntity<>(blacklistUser, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @GetMapping("/blacklisted-users")
+    public ResponseEntity<?> getBlacklistedUsers() {
+        List<User> blacklistedUsers = userService.getBlacklistedUsers();
+        return ResponseEntity.ok(blacklistedUsers);
     }
 }
