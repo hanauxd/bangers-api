@@ -15,6 +15,8 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString
 public class UserDTO {
+    private String id;
+    
     @NotBlank(message = "Role is required.")
     private String role;
 

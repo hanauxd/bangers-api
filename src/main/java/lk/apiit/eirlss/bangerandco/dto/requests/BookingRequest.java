@@ -31,11 +31,4 @@ public class BookingRequest {
         booking.setLateReturn(this.lateReturn);
         return booking;
     }
-
-    public void updateBooking(Booking booking) {
-        booking.setStatus(this.status);
-        booking.setStartDate(this.startDate);
-        booking.setEndDate(this.endDate);
-        booking.setLateReturn(this.lateReturn);
-    }
 }
