@@ -5,10 +5,13 @@ import lk.apiit.eirlss.bangerandco.models.*;
 import lk.apiit.eirlss.bangerandco.repositories.BookingRepository;
 import lk.apiit.eirlss.bangerandco.repositories.BookingUtilityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -38,6 +41,9 @@ public class BookingService {
         Date endDate = booking.getEndDate();
         validationService.validateBookingPeriod(startDate, endDate);
         validationService.checkVehicleAvailability(vehicle, endDate, startDate);
+        if (booking.isLateReturn() && isNewUser(user)) {
+            throw new CustomException("Late returns are not available for new users.", HttpStatus.BAD_REQUEST);
+        }
         booking.setVehicle(vehicle);
         booking.setUser(user);
         addUtilitiesToBooking(booking, utilities);
@@ -45,8 +51,8 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-    public List<Booking> getBookingsByUser(User user) {
-        List<Booking> bookings = bookingRepository.findByUser(user);
+    public List<Booking> getBookingsByUser(User user, Pageable pageable) {
+        List<Booking> bookings = bookingRepository.findByUser(user, pageable);
         if (bookings.isEmpty()) throw new CustomException("User does not have booking.", HttpStatus.NOT_FOUND);
         return bookings;
     }
@@ -55,31 +61,41 @@ public class BookingService {
         return bookingRepository.findById(id).orElseThrow(() -> new CustomException("Booking not found.", HttpStatus.NOT_FOUND));
     }
 
-    public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
+    public List<Booking> getAllBookings(Pageable pageable) {
+        Page<Booking> bookings = bookingRepository.findAll(pageable);
+        return bookings.getContent();
     }
 
-    public Booking updateBooking(Booking booking, Vehicle vehicle, List<String> utilities) {
-        validationService.validateBookingAge(booking.getUser(), vehicle);
-        List<Booking> bookings = bookingRepository.findByVehicleAndStartDateLessThanEqualAndEndDateGreaterThanEqual(vehicle, booking.getEndDate(), booking.getStartDate());
+    public Booking updateUtils(Booking booking, List<String> utilities) {
+        addUtilitiesToBooking(booking, utilities);
+        return getBookingById(booking.getId());
+    }
+
+    public Booking updateBooking(Booking booking, Vehicle vehicle) {
+        Date endDate = booking.getEndDate();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(endDate);
+        calendar.add(Calendar.DATE, 1);
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        calendar.set(year, month, day, 0, 0, 0);
+        Date newStartDate = calendar.getTime();
+
+        calendar.set(year, month, day, 23, 59, 59);
+        Date newEndDate = calendar.getTime();
+
+        List<Booking> bookings = bookingRepository.findByVehicleAndStartDateLessThanEqualAndEndDateGreaterThanEqual(vehicle, newEndDate, newStartDate);
+
         for (Booking persistedBooking : bookings) {
             if (!persistedBooking.getId().equals(booking.getId()))
                 throw new CustomException("Vehicle is not available for the selected date range.", HttpStatus.BAD_REQUEST);
         }
+
         validationService.validateBookingPeriod(booking.getStartDate(), booking.getEndDate());
         booking.setVehicle(vehicle);
-        addUtilitiesToBooking(booking, utilities);
         calculateBookingPrice(booking);
-        return bookingRepository.save(booking);
-    }
-
-    public Booking confirmBooking(String id, String status, boolean isLateReturn, List<String> utilities) {
-        Booking booking = getBookingById(id);
-        if (isLateReturn) {
-            setLateReturn(booking);
-        }
-        booking.setStatus(status);
-        addUtilitiesToBooking(booking, utilities);
         return bookingRepository.save(booking);
     }
 
@@ -95,13 +111,9 @@ public class BookingService {
         bookingRepository.delete(booking);
     }
 
-    private void setLateReturn(Booking booking) {
-        if (!isNewUser(booking.getUser())) booking.setLateReturn(true);
-    }
-
     private boolean isNewUser(User user) {
-        List<Booking> bookings = bookingRepository.findByUserAndStatus(user, "CONFIRMED");
-        return bookings.size() > 0;
+        List<Booking> bookings = bookingRepository.findByUserAndStatus(user, "Returned");
+        return bookings.size() < 1;
     }
 
     private void addUtilitiesToBooking(Booking booking, List<String> utilities) {
@@ -130,8 +142,11 @@ public class BookingService {
 
     private void calculateBookingPrice(Booking booking) {
         double unitPrice = booking.getVehicle().getPrice();
-        long days = validationService.getDuration(booking.getStartDate(), booking.getEndDate(), ChronoUnit.DAYS) + 1;
-        double totalPrice = days * unitPrice;
-        booking.setPrice(totalPrice);
+        long hours = validationService.getDuration(booking.getStartDate(), booking.getEndDate(), ChronoUnit.HOURS);
+        long noOfDays = hours/24;
+        long remainder = hours%24;
+        double remainderPrice = remainder > 5 ? unitPrice : unitPrice / 2;
+        double bookingPrice = noOfDays * unitPrice + remainderPrice;
+        booking.setPrice(bookingPrice);
     }
 }
