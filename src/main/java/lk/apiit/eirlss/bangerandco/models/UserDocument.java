@@ -8,6 +8,7 @@ import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -21,6 +22,8 @@ public class UserDocument {
     @Column(length = 36)
     private String id;
     private String filename;
+    private String type;
+    private Date issueDate;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "user", nullable = false, referencedColumnName = "id")

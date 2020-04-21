@@ -47,4 +47,6 @@ public class UserDTO {
 
     @NotBlank(message = "License number is required.")
     private String license;
+
+    private String profileImage;
 }
