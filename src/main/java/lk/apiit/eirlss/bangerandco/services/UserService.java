@@ -8,16 +8,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 @Service
 public class UserService {
     private UserRepository repository;
+    private FileService fileService;
 
     @Autowired
-    public UserService(UserRepository repository) {
+    public UserService(UserRepository repository, FileService fileService) {
         this.repository = repository;
+        this.fileService = fileService;
     }
 
     public User createUser(User user) {
@@ -62,6 +68,21 @@ public class UserService {
 
     public List<User> getBlacklistedUsers() {
         return repository.findUsersByBlacklisted(true);
+    }
+
+    public void profileImage(MultipartFile file, User user) {
+        String profileImage = user.getProfileImage();
+        if (profileImage != null) {
+            try {
+                Path path = fileService.getPath(profileImage);
+                Files.deleteIfExists(path);
+            } catch (IOException e) {
+                throw new CustomException("Failed to delete the file.", HttpStatus.BAD_REQUEST);
+            }
+        }
+        String filename = fileService.store(file);
+        user.setProfileImage(filename);
+        repository.save(user);
     }
 
     private String hashPassword(String password) {
