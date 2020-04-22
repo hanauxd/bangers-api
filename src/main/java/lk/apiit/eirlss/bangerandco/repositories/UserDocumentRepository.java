@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface UserDocumentRepository extends JpaRepository<UserDocument, String> {
     List<UserDocument> findByUser(User user);
-    UserDocument findByType(String type);
-    UserDocument findByTypeIsNot(String type);
+    UserDocument findByTypeAndUser(String type, User user);
+    UserDocument findByTypeIsNotAndUser(String type, User user);
 }
