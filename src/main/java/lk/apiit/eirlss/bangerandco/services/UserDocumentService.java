@@ -31,7 +31,7 @@ public class UserDocumentService {
     }
 
     public UserDocument createUserDocument(MultipartFile file, Date dateIssued, String type, User user) {
-        deleteIfTypeExists(type);
+        deleteIfTypeExists(type, user);
         String filename = fileService.store(file);
         UserDocument document = new UserDocument(filename, type, dateIssued, user);
         user.getDocuments().add(document);
@@ -55,16 +55,20 @@ public class UserDocumentService {
         return documentRepository.findByUser(user);
     }
 
-    public UserDocument getDocumentByType(String type) {
-        return documentRepository.findByType(type);
+    public UserDocument getDocumentByType(String type, User user) {
+        return documentRepository.findByTypeAndUser(type, user);
     }
 
-    private void deleteIfTypeExists(String type) {
+    public UserDocument getDocumentByTypeIsNot(String type, User user) {
+        return documentRepository.findByTypeIsNotAndUser(type, user);
+    }
+
+    private void deleteIfTypeExists(String type, User user) {
         if ("License".equals(type)) {
-            UserDocument licenseDoc = getDocumentByType(type);
+            UserDocument licenseDoc = getDocumentByType(type, user);
             if (licenseDoc != null) deleteUserDocument(licenseDoc.getId());
         } else {
-            UserDocument document = documentRepository.findByTypeIsNot("License");
+            UserDocument document = getDocumentByTypeIsNot("License", user);
             if (document != null) deleteUserDocument(document.getId());
         }
     }
