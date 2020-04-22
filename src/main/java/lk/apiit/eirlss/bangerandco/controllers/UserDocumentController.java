@@ -14,9 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/user-documents")
 public class UserDocumentController {
@@ -33,9 +34,14 @@ public class UserDocumentController {
 
     @PreAuthorize("hasAnyRole('USER', 'STAFF', 'ADMIN')")
     @PostMapping("/upload")
-    public ResponseEntity<?> createUserDocument(@RequestParam("file") MultipartFile uploadedFile, Authentication auth) {
+    public ResponseEntity<?> createUserDocument(
+            @RequestParam("file") MultipartFile uploadedFile,
+            @RequestParam("dateIssued") Date dateIssued,
+            @RequestParam("type") String type,
+            Authentication auth
+    ) {
         User user = userService.getUserByEmail(auth.getName());
-        userDocumentService.createUserDocument(uploadedFile, user);
+        userDocumentService.createUserDocument(uploadedFile, dateIssued, type, user);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
@@ -46,9 +52,11 @@ public class UserDocumentController {
 
     @PreAuthorize("hasAnyRole('USER', 'STAFF', 'ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUserDocument(@PathVariable String id) {
-        String deletedFilename = userDocumentService.deleteUserDocument(id);
-        return ResponseEntity.ok("User Document '" + deletedFilename + "' deleted.");
+    public ResponseEntity<?> deleteUserDocument(@PathVariable String id, Authentication auth) {
+        userDocumentService.deleteUserDocument(id);
+        User user = userService.getUserByEmail(auth.getName());
+        List<UserDocument> documents = userDocumentService.getDocumentsByUser(user);
+        return ResponseEntity.ok(documents);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'STAFF', 'ADMIN')")

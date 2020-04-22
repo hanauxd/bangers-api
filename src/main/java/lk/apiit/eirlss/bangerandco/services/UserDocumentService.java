@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -29,10 +30,12 @@ public class UserDocumentService {
         return documentRepository.findById(id).orElseThrow(() -> new CustomException("Document not found.", HttpStatus.NOT_FOUND));
     }
 
-    public UserDocument createUserDocument(MultipartFile file, User user) {
+    public UserDocument createUserDocument(MultipartFile file, Date dateIssued, String type, User user) {
         UserDocument document = new UserDocument();
         String filename = fileService.store(file);
         document.setFilename(filename);
+        document.setIssueDate(dateIssued);
+        document.setType(type);
         document.setUser(user);
         user.getDocuments().add(document);
         return documentRepository.save(document);
