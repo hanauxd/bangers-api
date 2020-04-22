@@ -31,17 +31,14 @@ public class UserDocumentService {
     }
 
     public UserDocument createUserDocument(MultipartFile file, Date dateIssued, String type, User user) {
-        UserDocument document = new UserDocument();
+        deleteIfTypeExists(type);
         String filename = fileService.store(file);
-        document.setFilename(filename);
-        document.setIssueDate(dateIssued);
-        document.setType(type);
-        document.setUser(user);
+        UserDocument document = new UserDocument(filename, type, dateIssued, user);
         user.getDocuments().add(document);
         return documentRepository.save(document);
     }
 
-    public String deleteUserDocument(String id) {
+    public void deleteUserDocument(String id) {
         try {
             UserDocument document = getUserDocumentById(id);
             String filename = document.getFilename();
@@ -49,7 +46,6 @@ public class UserDocumentService {
             Files.deleteIfExists(path);
             document.getUser().removeUserDocument(document);
             documentRepository.delete(document);
-            return filename;
         } catch (IOException e) {
             throw new CustomException("Failed to delete the file.", HttpStatus.BAD_REQUEST);
         }
@@ -57,5 +53,19 @@ public class UserDocumentService {
 
     public List<UserDocument> getDocumentsByUser(User user) {
         return documentRepository.findByUser(user);
+    }
+
+    public UserDocument getDocumentByType(String type) {
+        return documentRepository.findByType(type);
+    }
+
+    private void deleteIfTypeExists(String type) {
+        if ("License".equals(type)) {
+            UserDocument licenseDoc = getDocumentByType(type);
+            if (licenseDoc != null) deleteUserDocument(licenseDoc.getId());
+        } else {
+            UserDocument document = documentRepository.findByTypeIsNot("License");
+            if (document != null) deleteUserDocument(document.getId());
+        }
     }
 }
