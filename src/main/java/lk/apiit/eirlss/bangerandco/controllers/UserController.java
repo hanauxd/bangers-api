@@ -12,11 +12,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -91,5 +92,13 @@ public class UserController {
     public ResponseEntity<?> getBlacklistedUsers() {
         List<User> blacklistedUsers = userService.getBlacklistedUsers();
         return ResponseEntity.ok(blacklistedUsers);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
+    @PostMapping("/profile-image")
+    public ResponseEntity<?> profileImage(@RequestParam("file") MultipartFile file, Authentication auth) {
+        User user = userService.getUserByEmail(auth.getName());
+        userService.profileImage(file, user);
+        return ResponseEntity.ok(user);
     }
 }
