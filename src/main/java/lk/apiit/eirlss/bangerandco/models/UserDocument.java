@@ -29,4 +29,11 @@ public class UserDocument {
     @JoinColumn(name = "user", nullable = false, referencedColumnName = "id")
     @JsonIgnore
     private User user;
+
+    public UserDocument(String filename, String type, Date issueDate, User user) {
+        this.filename = filename;
+        this.type = type;
+        this.issueDate = issueDate;
+        this.user = user;
+    }
 }
