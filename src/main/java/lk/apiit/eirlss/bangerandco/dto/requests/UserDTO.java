@@ -20,11 +20,8 @@ public class UserDTO {
     @NotBlank(message = "Role is required.")
     private String role;
 
-    @NotBlank(message = "First name is required.")
-    private String firstName;
-
-    @NotBlank(message = "Last name is required.")
-    private String lastName;
+    @NotBlank(message = "Name is required.")
+    private String fullName;
 
     @NotBlank(message = "Date of birth is required.")
     @JsonFormat(pattern = "dd-MM-yyyy")
@@ -41,4 +38,15 @@ public class UserDTO {
     private String password;
 
     private boolean blacklisted;
+
+    @NotBlank(message = "Address is required.")
+    private String address;
+
+    @NotBlank(message = "NIC is required.")
+    private String nic;
+
+    @NotBlank(message = "License number is required.")
+    private String license;
+
+    private String profileImage;
 }

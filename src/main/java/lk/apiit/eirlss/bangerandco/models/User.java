@@ -31,11 +31,8 @@ public class User {
     @NotBlank(message = "Role is required.")
     private String role;
 
-    @NotBlank(message = "First name is required.")
-    private String firstName;
-
-    @NotBlank(message = "Last name is required.")
-    private String lastName;
+    @NotBlank(message = "Name is required.")
+    private String fullName;
 
     @JsonFormat(pattern = "dd-MM-yyyy")
     private Date dob;
@@ -53,6 +50,17 @@ public class User {
     private String password;
 
     private boolean blacklisted;
+
+    @NotBlank(message = "Address is required.")
+    private String address;
+
+    @NotBlank(message = "NIC is required.")
+    private String nic;
+
+    @NotBlank(message = "License number is required.")
+    private String license;
+
+    private String profileImage;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore

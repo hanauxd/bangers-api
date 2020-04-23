@@ -15,10 +15,12 @@ import java.util.List;
 @Service
 public class BookingValidationService {
     private BookingRepository bookingRepository;
+    private UserDocumentService documentService;
 
     @Autowired
-    public BookingValidationService(BookingRepository bookingRepository) {
+    public BookingValidationService(BookingRepository bookingRepository, UserDocumentService documentService) {
         this.bookingRepository = bookingRepository;
+        this.documentService = documentService;
     }
 
     public void checkVehicleAvailability(Vehicle vehicle, Date endDate, Date startDate) {
@@ -73,15 +75,37 @@ public class BookingValidationService {
     }
 
     public void validateBookingAge(User user, Vehicle vehicle) {
-        boolean isAge = user.getAge() < 25;
-        boolean isTownCar = vehicle.getCategory().toLowerCase().equals("town car");
-        boolean isSmall = vehicle.getSize().toLowerCase().equals("small");
-        if (isAge && !isTownCar && !isSmall) {
-            throw new CustomException("Customers under 25 years are allowed to book only Small Town Cars.", HttpStatus.BAD_REQUEST);
+        if (user.getAge() < 25) {
+            boolean isSmall = vehicle.getSize().toLowerCase().equals("small");
+            if (isSmall) {
+                boolean isTownCar = "town car".equalsIgnoreCase(vehicle.getCategory());
+                if (!isTownCar) {
+                    throw new CustomException("Customers under 25 years are allowed to book only Small Town Cars.", HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                throw new CustomException("Customers under 25 years are allowed to book only Small Town Cars.", HttpStatus.BAD_REQUEST);
+            }
         }
     }
 
     public long getDuration(Date startDate, Date endDate, ChronoUnit timeUnit) {
         return timeUnit.between(startDate.toInstant(), endDate.toInstant());
+    }
+
+    public void validateDocuments(User user) {
+        UserDocument licenseDoc = documentService.getDocumentByType("License", user);
+        if (licenseDoc == null) throw new CustomException("License document not found.", HttpStatus.BAD_REQUEST);
+
+        UserDocument supportDoc = documentService.getDocumentByTypeIsNot("License", user);
+        if (supportDoc == null) {
+            throw new CustomException("Support document not found.", HttpStatus.BAD_REQUEST);
+        } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(supportDoc.getIssueDate());
+            calendar.add(Calendar.MONTH, 3);
+            if (new Date().after(calendar.getTime())) {
+                throw new CustomException("Support document should not be older than 3 months.", HttpStatus.BAD_REQUEST);
+            }
+        }
     }
 }

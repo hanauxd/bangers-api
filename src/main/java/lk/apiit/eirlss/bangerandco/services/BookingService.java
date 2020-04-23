@@ -35,6 +35,7 @@ public class BookingService {
     }
 
     public Booking createBooking(Booking booking, Vehicle vehicle, List<String> utilities, User user) {
+        validationService.validateDocuments(user);
         validationService.validateBookingAge(user, vehicle);
         Date startDate = booking.getStartDate();
         Date endDate = booking.getEndDate();
