@@ -75,11 +75,16 @@ public class BookingValidationService {
     }
 
     public void validateBookingAge(User user, Vehicle vehicle) {
-        boolean isAge = user.getAge() < 25;
-        boolean isTownCar = vehicle.getCategory().toLowerCase().equals("town car");
-        boolean isSmall = vehicle.getSize().toLowerCase().equals("small");
-        if (isAge && !isTownCar && !isSmall) {
-            throw new CustomException("Customers under 25 years are allowed to book only Small Town Cars.", HttpStatus.BAD_REQUEST);
+        if (user.getAge() < 25) {
+            boolean isSmall = vehicle.getSize().toLowerCase().equals("small");
+            if (isSmall) {
+                boolean isTownCar = "town car".equalsIgnoreCase(vehicle.getCategory());
+                if (!isTownCar) {
+                    throw new CustomException("Customers under 25 years are allowed to book only Small Town Cars.", HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                throw new CustomException("Customers under 25 years are allowed to book only Small Town Cars.", HttpStatus.BAD_REQUEST);
+            }
         }
     }
 
