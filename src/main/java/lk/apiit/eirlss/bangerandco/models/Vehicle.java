@@ -24,7 +24,9 @@ public class Vehicle {
     private String description;
     private String brand;
     private String model;
+    @Column(name = "fuel_type")
     private String fuelType;
+    @Column(name = "transmission_type")
     private String transmissionType;
     private String category;
     private String size;

@@ -23,6 +23,7 @@ public class UserDocument {
     private String id;
     private String filename;
     private String type;
+    @Column(name = "issue_date")
     private Date issueDate;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

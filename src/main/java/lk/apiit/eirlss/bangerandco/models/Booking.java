@@ -27,13 +27,17 @@ public class Booking {
     private String id;
     private String status;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @Column(name = "start_date")
     private Date startDate;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @Column(name = "end_date")
     private Date endDate;
     private double price;
+    @Column(name = "late_return")
     private boolean lateReturn;
 
     @JsonIgnore
+    @Column(name = "created_at")
     @CreationTimestamp
     private Date createdAt;
 
