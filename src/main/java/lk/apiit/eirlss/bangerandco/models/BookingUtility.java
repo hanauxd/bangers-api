@@ -1,7 +1,9 @@
 package lk.apiit.eirlss.bangerandco.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -10,6 +12,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Data
 @Entity
+@Table(name = "booking_utility")
 public class BookingUtility {
     @Id
     @GeneratedValue(generator = "uuid2")

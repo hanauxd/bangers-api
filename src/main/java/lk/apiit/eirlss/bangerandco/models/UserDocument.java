@@ -15,6 +15,7 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString
 @Entity
+@Table(name = "user_document")
 public class UserDocument {
     @Id
     @GeneratedValue(generator = "uuid2")
