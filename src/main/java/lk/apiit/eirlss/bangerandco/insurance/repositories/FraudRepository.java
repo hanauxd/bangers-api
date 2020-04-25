@@ -7,5 +7,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FraudRepository extends JpaRepository<Fraud, String> {
     Fraud findByNic(String nic);
-    Fraud findByLicense(String license);
 }
