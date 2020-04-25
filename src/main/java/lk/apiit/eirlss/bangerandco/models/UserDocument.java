@@ -15,6 +15,7 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString
 @Entity
+@Table(name = "user_document")
 public class UserDocument {
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -23,6 +24,7 @@ public class UserDocument {
     private String id;
     private String filename;
     private String type;
+    @Column(name = "issue_date")
     private Date issueDate;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

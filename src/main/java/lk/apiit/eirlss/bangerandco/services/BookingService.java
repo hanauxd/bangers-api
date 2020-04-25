@@ -1,6 +1,7 @@
 package lk.apiit.eirlss.bangerandco.services;
 
 import lk.apiit.eirlss.bangerandco.exceptions.CustomException;
+import lk.apiit.eirlss.bangerandco.insurance.models.Fraud;
 import lk.apiit.eirlss.bangerandco.models.*;
 import lk.apiit.eirlss.bangerandco.repositories.BookingRepository;
 import lk.apiit.eirlss.bangerandco.repositories.BookingUtilityRepository;
@@ -20,18 +21,22 @@ public class BookingService {
     private UtilityService utilityService;
     private BookingUtilityRepository bookingUtilityRepository;
     private BookingValidationService validationService;
+    private UserService userService;
+    private FraudService fraudService;
 
     @Autowired
     public BookingService(
             BookingRepository bookingRepository,
             UtilityService utilityService,
             BookingUtilityRepository bookingUtilityRepository,
-            BookingValidationService validationService
-    ) {
+            BookingValidationService validationService,
+            UserService userService, FraudService fraudService) {
         this.bookingRepository = bookingRepository;
         this.utilityService = utilityService;
         this.bookingUtilityRepository = bookingUtilityRepository;
         this.validationService = validationService;
+        this.userService = userService;
+        this.fraudService = fraudService;
     }
 
     public Booking createBooking(Booking booking, Vehicle vehicle, List<String> utilities, User user) {
@@ -71,11 +76,36 @@ public class BookingService {
         return getBookingById(booking.getId());
     }
 
-    public Booking updateBooking(Booking booking, Vehicle vehicle) {
+    public Booking extendBooking(Booking booking, Vehicle vehicle) {
         validationService.checkVehicleAvailabilityForNextDay(booking.getId(), booking.getEndDate(), vehicle);
         validationService.validateBookingPeriod(booking.getStartDate(), booking.getEndDate());
         booking.setVehicle(vehicle);
         calculateBookingPrice(booking);
+        return bookingRepository.save(booking);
+    }
+
+    public Booking updateBookingStatus(String id, String status) {
+        Booking booking = getBookingById(id);
+        User user = booking.getUser();
+        switch (status) {
+            case "Failed": {
+                userService.blacklistUser(user.getId(), true);
+                break;
+            }
+            case "Collected": {
+                Fraud fraud = fraudService.getFraudByNic(user.getNic());
+                if (fraud != null) {
+                    booking.setStatus("Refused");
+                    bookingRepository.save(booking);
+                    throw new CustomException(
+                            "Vehicle hire is refused due to a fraudulent claim against the customer.",
+                            HttpStatus.BAD_REQUEST
+                    );
+                }
+                break;
+            }
+        }
+        booking.setStatus(status);
         return bookingRepository.save(booking);
     }
 

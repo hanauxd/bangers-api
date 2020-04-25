@@ -12,6 +12,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "vehicle_image")
 public class VehicleImage {
     @Id
     @GeneratedValue(generator = "uuid2")

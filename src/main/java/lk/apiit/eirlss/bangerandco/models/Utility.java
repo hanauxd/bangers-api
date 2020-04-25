@@ -25,7 +25,9 @@ public class Utility {
     private String id;
 
     @NotBlank(message = "Utility Type is required.")
+    @Column(name = "utility_type")
     private String utilityType;
+
     private int quantity;
 
     @OneToMany(mappedBy = "utility", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

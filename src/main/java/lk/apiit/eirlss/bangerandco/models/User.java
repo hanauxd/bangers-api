@@ -32,6 +32,7 @@ public class User {
     private String role;
 
     @NotBlank(message = "Name is required.")
+    @Column(name = "full_name")
     private String fullName;
 
     @JsonFormat(pattern = "dd-MM-yyyy")
@@ -40,8 +41,8 @@ public class User {
     @NotBlank(message = "Phone number is required.")
     private String phone;
 
-    @Email(message = "A valid email is required")
     @NotBlank(message = "Email is required.")
+    @Email(message = "A valid email is required")
     @Column(unique = true, updatable = false)
     private String email;
 
@@ -60,6 +61,7 @@ public class User {
     @NotBlank(message = "License number is required.")
     private String license;
 
+    @Column(name = "profile_image")
     private String profileImage;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

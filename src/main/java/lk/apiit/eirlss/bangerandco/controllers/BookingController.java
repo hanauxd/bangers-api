@@ -34,8 +34,7 @@ public class BookingController {
             BookingService bookingService,
             MapValidationErrorService mapValidationErrorService,
             UserService userService,
-            VehicleService vehicleService
-    ) {
+            VehicleService vehicleService) {
         this.bookingService = bookingService;
         this.mapValidationErrorService = mapValidationErrorService;
         this.userService = userService;
@@ -74,7 +73,7 @@ public class BookingController {
         Booking booking = bookingService.getBookingById(id);
         booking.setEndDate(dto.getEndDate());
 
-        Booking updatedBooking = bookingService.updateBooking(booking, vehicle);
+        Booking updatedBooking = bookingService.extendBooking(booking, vehicle);
         return ResponseEntity.ok(updatedBooking);
     }
 
@@ -95,16 +94,10 @@ public class BookingController {
         return ResponseEntity.ok(bookings);
     }
 
-    @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'USER')")
     @PostMapping("/update")
-    public ResponseEntity<?> updateBooking(@RequestParam String id, @RequestParam String status) {
-        Booking booking = bookingService.getBookingById(id);
-        booking.setStatus(status);
-        if ("Failed".equals(status)) {
-            String userId = booking.getUser().getId();
-            userService.blacklistUser(userId, true);
-        }
+    public ResponseEntity<?> updateBookingStatus(@RequestParam String id, @RequestParam String status) {
+        Booking booking = bookingService.updateBookingStatus(id, status);
         return new ResponseEntity<>(booking, HttpStatus.OK);
     }
 
