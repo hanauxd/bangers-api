@@ -14,13 +14,19 @@ import java.util.List;
 
 @Service
 public class BookingValidationService {
-    private BookingRepository bookingRepository;
-    private UserDocumentService documentService;
+    private final BookingRepository bookingRepository;
+    private final UserDocumentService documentService;
+    private final ReportedLicenseService licenseService;
 
     @Autowired
-    public BookingValidationService(BookingRepository bookingRepository, UserDocumentService documentService) {
+    public BookingValidationService(
+            BookingRepository bookingRepository,
+            UserDocumentService documentService,
+            ReportedLicenseService licenseService
+    ) {
         this.bookingRepository = bookingRepository;
         this.documentService = documentService;
+        this.licenseService = licenseService;
     }
 
     public void checkVehicleAvailability(Vehicle vehicle, Date endDate, Date startDate) {
@@ -107,5 +113,12 @@ public class BookingValidationService {
                 throw new CustomException("Support document should not be older than 3 months.", HttpStatus.BAD_REQUEST);
             }
         }
+    }
+
+    public void checkLicense(String licenseNumber) {
+        ReportedLicense license = licenseService.getByLicense(licenseNumber);
+        if (license != null) throw new CustomException(
+                license.getStatus().concat(" license found."), HttpStatus.BAD_REQUEST
+        );
     }
 }

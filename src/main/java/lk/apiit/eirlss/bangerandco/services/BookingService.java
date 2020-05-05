@@ -40,6 +40,7 @@ public class BookingService {
     }
 
     public Booking createBooking(Booking booking, Vehicle vehicle, List<String> utilities, User user) {
+        validationService.checkLicense(user.getLicense());
         validationService.validateDocuments(user);
         validationService.validateBookingAge(user, vehicle);
         Date startDate = booking.getStartDate();
