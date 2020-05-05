@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FraudService {
-    private FraudRepository fraudRepository;
+    private final FraudRepository fraudRepository;
 
     @Autowired
     public FraudService(FraudRepository fraudRepository) {

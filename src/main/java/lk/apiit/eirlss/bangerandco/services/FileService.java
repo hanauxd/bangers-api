@@ -22,9 +22,9 @@ import java.util.UUID;
 
 @Service
 public class FileService {
+    private final String workingDirectory = System.getProperty("user.dir");
     @Value("${app.document.store-location}")
     private String documentLocation;
-    String workingDirectory = System.getProperty("user.dir");
 
     public String store(MultipartFile file) {
         try {
