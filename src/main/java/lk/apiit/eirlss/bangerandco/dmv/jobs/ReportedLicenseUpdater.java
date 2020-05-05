@@ -30,6 +30,17 @@ public class ReportedLicenseUpdater {
     private String password;
     private HttpClient client;
     private final ReportedLicenseService licenseService;
+    private final Consumer<AuthResponse> authCallback = auth -> {
+        Consumer<String> licenseCallback = this::updateDatabase;
+        client.get(
+                baseURL.concat("licenses"),
+                getToken(auth.getJwt()),
+                String.class,
+                licenseCallback
+        );
+    };
+    private final Consumer<Throwable> errorCallback = throwable ->
+            System.out.println("[ON AUTH FAILURE] ".concat(throwable.getMessage()));
 
     @Autowired
     public ReportedLicenseUpdater(HttpClient client, ReportedLicenseService licenseService) {
@@ -47,19 +58,6 @@ public class ReportedLicenseUpdater {
                 errorCallback
         );
     }
-
-    private final Consumer<AuthResponse> authCallback = auth -> {
-        Consumer<String> licenseCallback = this::updateDatabase;
-        client.get(
-                baseURL.concat("licenses"),
-                getToken(auth.getJwt()),
-                String.class,
-                licenseCallback
-        );
-    };
-
-    private final Consumer<Throwable> errorCallback = throwable ->
-            System.out.println("[ON AUTH FAILURE] ".concat(throwable.getMessage()));
 
     private void updateDatabase(String csv) {
         licenseService.deleteAllInBatch();
