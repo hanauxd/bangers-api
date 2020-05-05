@@ -21,9 +21,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/user-documents")
 public class UserDocumentController {
-    private UserDocumentService userDocumentService;
-    private UserService userService;
-    private FileService fileService;
+    private final UserDocumentService userDocumentService;
+    private final UserService userService;
+    private final FileService fileService;
 
     @Autowired
     public UserDocumentController(UserDocumentService userDocumentService, UserService userService, FileService fileService) {

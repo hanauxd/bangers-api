@@ -11,12 +11,12 @@ import java.util.stream.Collectors;
 
 public class UserDetailsImpl implements UserDetails {
 
-    private String email;
-    private String password;
-    private boolean blacklisted;
-    private List<GrantedAuthority> authorities;
-    private String userRole;
-    private String userId;
+    private final String email;
+    private final String password;
+    private final boolean blacklisted;
+    private final List<GrantedAuthority> authorities;
+    private final String userRole;
+    private final String userId;
 
     public UserDetailsImpl(User user) {
         this.email = user.getEmail();

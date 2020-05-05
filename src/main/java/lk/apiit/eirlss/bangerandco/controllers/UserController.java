@@ -21,9 +21,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private UserService userService;
-    private ModelMapper modelMapper;
-    private MapValidationErrorService mapValidationErrorService;
+    private final UserService userService;
+    private final ModelMapper modelMapper;
+    private final MapValidationErrorService mapValidationErrorService;
 
     @Autowired
     public UserController(UserService userService, MapValidationErrorService mapValidationErrorService) {

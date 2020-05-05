@@ -33,7 +33,8 @@ public class BookingValidationService {
 
     public void checkVehicleAvailability(Vehicle vehicle, Date endDate, Date startDate) {
         List<Booking> bookings = bookingRepository.findByVehicleAndStartDateLessThanEqualAndEndDateGreaterThanEqual(vehicle, endDate, startDate);
-        if (bookings.size() > 0) throw new CustomException("Vehicle is not available for the selected date range.", HttpStatus.BAD_REQUEST);
+        if (bookings.size() > 0)
+            throw new CustomException("Vehicle is not available for the selected date range.", HttpStatus.BAD_REQUEST);
     }
 
     public void checkVehicleAvailabilityForNextDay(String bookingId, Date returnDate, Vehicle vehicle) {
@@ -128,6 +129,6 @@ public class BookingValidationService {
     private void reportToAuthority(User user) {
         UserDocument userLicense = documentService.getDocumentByType("License", user);
         String licenseFilename = userLicense.getFilename();
-        new Thread(() -> mailService.sendMailWithAttachment(licenseFilename)).start();
+        new Thread(() -> mailService.sendMailWithAttachment(user, licenseFilename)).start();
     }
 }

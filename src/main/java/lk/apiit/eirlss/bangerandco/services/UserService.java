@@ -17,8 +17,8 @@ import java.util.List;
 
 @Service
 public class UserService {
-    private UserRepository repository;
-    private FileService fileService;
+    private final UserRepository repository;
+    private final FileService fileService;
 
     @Autowired
     public UserService(UserRepository repository, FileService fileService) {
@@ -28,7 +28,8 @@ public class UserService {
 
     public User createUser(User user) {
         boolean isExist = repository.findUserByEmail(user.getEmail()).isPresent();
-        if (isExist) throw new CustomException("Email '" + user.getEmail() + "' already exist.", HttpStatus.BAD_REQUEST);
+        if (isExist)
+            throw new CustomException("Email '" + user.getEmail() + "' already exist.", HttpStatus.BAD_REQUEST);
         user.setPassword(hashPassword(user.getPassword()));
         return repository.save(user);
     }
@@ -63,7 +64,7 @@ public class UserService {
         User user = getUserById(id);
         user.setBlacklisted(isBlacklisted);
         repository.save(user);
-       return getBlacklistedUsers();
+        return getBlacklistedUsers();
     }
 
     public List<User> getBlacklistedUsers() {

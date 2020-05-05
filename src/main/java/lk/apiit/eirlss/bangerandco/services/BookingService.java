@@ -147,8 +147,8 @@ public class BookingService {
     private void calculateBookingPrice(Booking booking) {
         double unitPrice = booking.getVehicle().getPrice();
         long hours = validationService.getDuration(booking.getStartDate(), booking.getEndDate(), ChronoUnit.HOURS);
-        long noOfDays = hours/24;
-        long remainder = hours%24;
+        long noOfDays = hours / 24;
+        long remainder = hours % 24;
         double remainderPrice = remainder > 5 ? unitPrice : unitPrice / 2;
         double bookingPrice = noOfDays * unitPrice + remainderPrice;
         booking.setPrice(bookingPrice);

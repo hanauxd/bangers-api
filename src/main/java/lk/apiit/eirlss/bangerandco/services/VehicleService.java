@@ -14,9 +14,9 @@ import java.util.List;
 
 @Service
 public class VehicleService {
-    private VehicleRepository vehicleRepository;
-    private VehicleImageRepository vehicleImageRepository;
-    private FileService fileService;
+    private final VehicleRepository vehicleRepository;
+    private final VehicleImageRepository vehicleImageRepository;
+    private final FileService fileService;
 
     @Autowired
     public VehicleService(VehicleRepository vehicleRepository, VehicleImageRepository vehicleImageRepository, FileService fileService) {

@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public class ReportedLicenseService {
-    private ReportedLicenseRepository licenseRepository;
+    private final ReportedLicenseRepository licenseRepository;
 
     @Autowired
     public ReportedLicenseService(ReportedLicenseRepository licenseRepository) {

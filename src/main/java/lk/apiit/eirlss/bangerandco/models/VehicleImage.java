@@ -23,7 +23,7 @@ public class VehicleImage {
     private String filename;
 
     @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
-    @JoinColumn(name="vehicle", referencedColumnName = "id")
+    @JoinColumn(name = "vehicle", referencedColumnName = "id")
     @JsonIgnore
     private Vehicle vehicle;
 

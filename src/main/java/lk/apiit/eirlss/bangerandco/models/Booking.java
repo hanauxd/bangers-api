@@ -26,10 +26,10 @@ public class Booking {
     @Column(length = 36)
     private String id;
     private String status;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "start_date")
     private Date startDate;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "end_date")
     private Date endDate;
     private double price;

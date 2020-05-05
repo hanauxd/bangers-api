@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -20,14 +19,12 @@ import java.io.IOException;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    @Value("${app.token.prefix}")
-    private String TOKEN_PREFIX;
-
-    @Value("${app.token.header}")
-    private String TOKEN_HEADER;
-
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtUtil jwtUtil;
+    @Value("${app.token.prefix}")
+    private String TOKEN_PREFIX;
+    @Value("${app.token.header}")
+    private String TOKEN_HEADER;
 
     @Autowired
     public JwtRequestFilter(UserDetailsServiceImpl userDetailsService, JwtUtil jwtUtil) {
@@ -59,5 +56,5 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             logger.error(ex.getMessage());
         }
         filterChain.doFilter(httpServletRequest, httpServletResponse);
-     }
+    }
 }
