@@ -1,4 +1,4 @@
-package lk.apiit.eirlss.bangerandco.config.db;
+package lk.apiit.eirlss.bangerandco.db;
 
 import lk.apiit.eirlss.bangerandco.insurance.models.Fraud;
 import org.springframework.beans.factory.annotation.Qualifier;

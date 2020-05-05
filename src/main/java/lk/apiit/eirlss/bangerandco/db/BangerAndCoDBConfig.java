@@ -1,4 +1,4 @@
-package lk.apiit.eirlss.bangerandco.config.db;
+package lk.apiit.eirlss.bangerandco.db;
 
 import lk.apiit.eirlss.bangerandco.models.*;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -47,6 +47,7 @@ public class BangerAndCoDBConfig {
                 .packages(Utility.class).persistenceUnit("utility")
                 .packages(Vehicle.class).persistenceUnit("vehicle")
                 .packages(VehicleImage.class).persistenceUnit("vehicleImage")
+                .packages(ReportedLicense.class).persistenceUnit("reportedLicense")
                 .build();
     }
 
