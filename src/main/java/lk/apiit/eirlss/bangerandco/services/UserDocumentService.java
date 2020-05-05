@@ -17,8 +17,8 @@ import java.util.List;
 
 @Service
 public class UserDocumentService {
-    private UserDocumentRepository documentRepository;
-    private FileService fileService;
+    private final UserDocumentRepository documentRepository;
+    private final FileService fileService;
 
     @Autowired
     public UserDocumentService(UserDocumentRepository documentRepository, FileService fileService) {

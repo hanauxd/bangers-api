@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 public class UtilityService {
-    private UtilityRepository utilityRepository;
+    private final UtilityRepository utilityRepository;
 
     @Autowired
     public UtilityService(UtilityRepository utilityRepository) {
@@ -20,7 +20,8 @@ public class UtilityService {
 
     public List<Utility> createUtility(Utility newUtility) {
         Utility utility = utilityRepository.findByUtilityType(newUtility.getUtilityType());
-        if (utility != null) throw new CustomException("Utility type '" + newUtility.getUtilityType() + "' already exist.", HttpStatus.BAD_REQUEST);
+        if (utility != null)
+            throw new CustomException("Utility type '" + newUtility.getUtilityType() + "' already exist.", HttpStatus.BAD_REQUEST);
         utilityRepository.save(newUtility);
         return getAllUtilities();
     }
