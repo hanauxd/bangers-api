@@ -13,7 +13,10 @@ import java.util.List;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, String> {
     List<Booking> findByUser(User user, Pageable pageable);
+
     List<Booking> findByUserAndStatus(User user, String status);
+
     List<Booking> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(Date endDate, Date startDate);
+
     List<Booking> findByVehicleAndStartDateLessThanEqualAndEndDateGreaterThanEqual(Vehicle vehicle, Date endDate, Date startDate);
 }

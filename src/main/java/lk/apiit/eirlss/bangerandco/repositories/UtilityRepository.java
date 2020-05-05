@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface UtilityRepository extends JpaRepository<Utility, String> {
     Utility findByUtilityType(String type);
+
     List<Utility> findByQuantityGreaterThan(int qty);
 }
