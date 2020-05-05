@@ -14,13 +14,21 @@ import java.util.List;
 
 @Service
 public class BookingValidationService {
-    private BookingRepository bookingRepository;
-    private UserDocumentService documentService;
+    private final BookingRepository bookingRepository;
+    private final UserDocumentService documentService;
+    private final ReportedLicenseService licenseService;
+    private final MailService mailService;
 
     @Autowired
-    public BookingValidationService(BookingRepository bookingRepository, UserDocumentService documentService) {
+    public BookingValidationService(
+            BookingRepository bookingRepository,
+            UserDocumentService documentService,
+            ReportedLicenseService licenseService,
+            MailService mailService) {
         this.bookingRepository = bookingRepository;
         this.documentService = documentService;
+        this.licenseService = licenseService;
+        this.mailService = mailService;
     }
 
     public void checkVehicleAvailability(Vehicle vehicle, Date endDate, Date startDate) {
@@ -107,5 +115,19 @@ public class BookingValidationService {
                 throw new CustomException("Support document should not be older than 3 months.", HttpStatus.BAD_REQUEST);
             }
         }
+    }
+
+    public void checkIfLicenseIsReported(User user) {
+        ReportedLicense reportedLicense = licenseService.getByLicense(user.getLicense());
+        if (reportedLicense != null) {
+            reportToAuthority(user);
+            throw new CustomException(reportedLicense.getStatus().concat(" license found."), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void reportToAuthority(User user) {
+        UserDocument userLicense = documentService.getDocumentByType("License", user);
+        String licenseFilename = userLicense.getFilename();
+        new Thread(() -> mailService.sendMailWithAttachment(licenseFilename)).start();
     }
 }

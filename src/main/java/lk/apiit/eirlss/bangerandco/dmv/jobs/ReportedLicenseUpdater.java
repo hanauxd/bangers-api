@@ -66,8 +66,8 @@ public class ReportedLicenseUpdater {
         List<ReportedLicense> licenses = new ArrayList<>();
         String[] rows = csv.split("\n");
         List<String> records = Arrays.stream(rows).skip(1).collect(Collectors.toList());
-        for (String column : records) {
-            String[] values = column.split(",");
+        for (String record : records) {
+            String[] values = record.split(",");
             ReportedLicense license = new ReportedLicense(values[0], values[1], values[2]);
             licenses.add(license);
         }

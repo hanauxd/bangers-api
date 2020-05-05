@@ -17,12 +17,12 @@ import java.util.List;
 
 @Service
 public class BookingService {
-    private BookingRepository bookingRepository;
-    private UtilityService utilityService;
-    private BookingUtilityRepository bookingUtilityRepository;
-    private BookingValidationService validationService;
-    private UserService userService;
-    private FraudService fraudService;
+    private final BookingRepository bookingRepository;
+    private final UtilityService utilityService;
+    private final BookingUtilityRepository bookingUtilityRepository;
+    private final BookingValidationService validationService;
+    private final UserService userService;
+    private final FraudService fraudService;
 
     @Autowired
     public BookingService(
@@ -30,7 +30,9 @@ public class BookingService {
             UtilityService utilityService,
             BookingUtilityRepository bookingUtilityRepository,
             BookingValidationService validationService,
-            UserService userService, FraudService fraudService) {
+            UserService userService,
+            FraudService fraudService
+    ) {
         this.bookingRepository = bookingRepository;
         this.utilityService = utilityService;
         this.bookingUtilityRepository = bookingUtilityRepository;
@@ -40,15 +42,7 @@ public class BookingService {
     }
 
     public Booking createBooking(Booking booking, Vehicle vehicle, List<String> utilities, User user) {
-        validationService.validateDocuments(user);
-        validationService.validateBookingAge(user, vehicle);
-        Date startDate = booking.getStartDate();
-        Date endDate = booking.getEndDate();
-        validationService.validateBookingPeriod(startDate, endDate);
-        validationService.checkVehicleAvailability(vehicle, endDate, startDate);
-        if (booking.isLateReturn() && isNewUser(user)) {
-            throw new CustomException("Late returns are not available for new users.", HttpStatus.BAD_REQUEST);
-        }
+        validateBooking(user, booking, vehicle);
         booking.setVehicle(vehicle);
         booking.setUser(user);
         addUtilitiesToBooking(booking, utilities);
@@ -158,5 +152,18 @@ public class BookingService {
         double remainderPrice = remainder > 5 ? unitPrice : unitPrice / 2;
         double bookingPrice = noOfDays * unitPrice + remainderPrice;
         booking.setPrice(bookingPrice);
+    }
+
+    private void validateBooking(User user, Booking booking, Vehicle vehicle) {
+        validationService.checkIfLicenseIsReported(user);
+        validationService.validateDocuments(user);
+        validationService.validateBookingAge(user, vehicle);
+        Date startDate = booking.getStartDate();
+        Date endDate = booking.getEndDate();
+        validationService.validateBookingPeriod(startDate, endDate);
+        validationService.checkVehicleAvailability(vehicle, endDate, startDate);
+        if (booking.isLateReturn() && isNewUser(user)) {
+            throw new CustomException("Late returns are not available for new users.", HttpStatus.BAD_REQUEST);
+        }
     }
 }

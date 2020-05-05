@@ -44,6 +44,10 @@ public class FileService {
         return Paths.get(path);
     }
 
+    public String getPathString(String filename) {
+        return workingDirectory + File.separator + documentLocation + File.separator + filename;
+    }
+
     private String rename(String filename) {
         String uuid = UUID.randomUUID().toString();
         String fileExtension = getFileExtension(filename);
