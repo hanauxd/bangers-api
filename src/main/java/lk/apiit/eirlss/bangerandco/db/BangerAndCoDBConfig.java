@@ -54,8 +54,8 @@ public class BangerAndCoDBConfig {
     @Primary
     @Bean(name = "transactionManager")
     public PlatformTransactionManager transactionManager(
-            @Qualifier("bangerAndCoEntityManagerFactory")EntityManagerFactory entityManagerFactory
-            ) {
+            @Qualifier("bangerAndCoEntityManagerFactory") EntityManagerFactory entityManagerFactory
+    ) {
         return new JpaTransactionManager(entityManagerFactory);
     }
 }

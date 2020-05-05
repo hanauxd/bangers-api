@@ -22,7 +22,7 @@ import javax.sql.DataSource;
         entityManagerFactoryRef = "insuranceEntityManagerFactory",
         transactionManagerRef = "insuranceTransactionManager",
         basePackages = {"lk.apiit.eirlss.bangerandco.insurance.repositories"}
-        )
+)
 public class InsuranceDBConfig {
 
     @Bean(name = "insuranceDataSource")
@@ -43,8 +43,8 @@ public class InsuranceDBConfig {
 
     @Bean("insuranceTransactionManager")
     public PlatformTransactionManager insuranceTransactionManager(
-            @Qualifier("insuranceEntityManagerFactory")EntityManagerFactory insuranceEntityManagerFactory
-            ) {
+            @Qualifier("insuranceEntityManagerFactory") EntityManagerFactory insuranceEntityManagerFactory
+    ) {
         return new JpaTransactionManager(insuranceEntityManagerFactory);
     }
 }
