@@ -1,4 +1,4 @@
-package lk.apiit.eirlss.bangerandco.dto.requests;
+package lk.apiit.eirlss.bangerandco.dmv.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationRequest {
+public class AuthResponse {
     private String username;
-    private String password;
+    private String expiryTime;
+    private String jwt;
 }

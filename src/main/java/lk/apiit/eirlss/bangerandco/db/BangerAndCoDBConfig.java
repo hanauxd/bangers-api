@@ -47,6 +47,7 @@ public class BangerAndCoDBConfig {
                 .packages(Utility.class).persistenceUnit("utility")
                 .packages(Vehicle.class).persistenceUnit("vehicle")
                 .packages(VehicleImage.class).persistenceUnit("vehicleImage")
+                .packages(ReportedLicense.class).persistenceUnit("reportedLicense")
                 .build();
     }
 
