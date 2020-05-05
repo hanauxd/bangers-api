@@ -24,15 +24,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 @RestController
 public class AuthenticationController {
-    private UserDetailsServiceImpl userServiceDetails;
     private final AuthenticationManager authenticationManager;
-    private JwtUtil jwtUtil;
-    private MapValidationErrorService mapValidationErrorService;
-    private ModelMapper modelMapper;
-    private UserService userService;
+    private final UserDetailsServiceImpl userServiceDetails;
+    private final JwtUtil jwtUtil;
+    private final MapValidationErrorService mapValidationErrorService;
+    private final ModelMapper modelMapper;
+    private final UserService userService;
 
     @Value("${app.token.expiry-time}")
     private String expiryTime;
