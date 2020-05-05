@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.Transactional;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/bookings")
 public class BookingController {
-    private BookingService bookingService;
-    private UserService userService;
-    private VehicleService vehicleService;
-    private MapValidationErrorService mapValidationErrorService;
+    private final BookingService bookingService;
+    private final UserService userService;
+    private final VehicleService vehicleService;
+    private final MapValidationErrorService mapValidationErrorService;
 
     @Autowired
     public BookingController(
