@@ -17,16 +17,18 @@ public class BookingValidationService {
     private final BookingRepository bookingRepository;
     private final UserDocumentService documentService;
     private final ReportedLicenseService licenseService;
+    private final MailService mailService;
 
     @Autowired
     public BookingValidationService(
             BookingRepository bookingRepository,
             UserDocumentService documentService,
-            ReportedLicenseService licenseService
-    ) {
+            ReportedLicenseService licenseService,
+            MailService mailService) {
         this.bookingRepository = bookingRepository;
         this.documentService = documentService;
         this.licenseService = licenseService;
+        this.mailService = mailService;
     }
 
     public void checkVehicleAvailability(Vehicle vehicle, Date endDate, Date startDate) {
@@ -115,10 +117,11 @@ public class BookingValidationService {
         }
     }
 
-    public void checkLicense(String licenseNumber) {
+    public void checkLicense(String licenseNumber, String path) {
         ReportedLicense license = licenseService.getByLicense(licenseNumber);
-        if (license != null) throw new CustomException(
-                license.getStatus().concat(" license found."), HttpStatus.BAD_REQUEST
-        );
+        if (license != null) {
+            new Thread(() -> mailService.sendMailWithAttachment(path), "MAIL SERVICE").start();
+            throw new CustomException(license.getStatus().concat(" license found."), HttpStatus.BAD_REQUEST);
+        }
     }
 }
