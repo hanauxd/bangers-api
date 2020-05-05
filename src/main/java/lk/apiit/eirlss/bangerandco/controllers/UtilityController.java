@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/utilities")
 public class UtilityController {
-    private UtilityService utilityService;
-    private MapValidationErrorService mapValidationErrorService;
+    private final UtilityService utilityService;
+    private final MapValidationErrorService mapValidationErrorService;
 
     @Autowired
     public UtilityController(UtilityService utilityService, MapValidationErrorService mapValidationErrorService) {
