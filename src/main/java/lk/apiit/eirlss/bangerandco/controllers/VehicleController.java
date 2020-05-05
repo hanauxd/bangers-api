@@ -18,13 +18,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/vehicles")
 public class VehicleController {
-    private FileService fileService;
-    private VehicleService vehicleService;
-    private MapValidationErrorService mapValidationErrorService;
+    private final FileService fileService;
+    private final VehicleService vehicleService;
+    private final MapValidationErrorService mapValidationErrorService;
 
     @Autowired
     public VehicleController(FileService fileService, VehicleService vehicleService, MapValidationErrorService mapValidationErrorService) {
