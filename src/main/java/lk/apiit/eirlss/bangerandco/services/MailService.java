@@ -19,26 +19,24 @@ import java.util.Date;
 @Service
 public class MailService {
     private final Logger LOGGER = LoggerFactory.getLogger(MailService.class);
-    @Value("${dmv.registration-number}")
-    String registrationNumber;
-    @Value("${dmv.email}")
-    String dmvEmail;
-
     private final JavaMailSender sender;
+    private final FileService fileService;
+
+    @Value("${dmv.registration-number}")
+    private String registrationNumber;
+    @Value("${dmv.email}")
+    private String dmvEmail;
 
     @Autowired
-    public MailService(JavaMailSender sender) {
+    public MailService(JavaMailSender sender, FileService fileService) {
         this.sender = sender;
+        this.fileService = fileService;
     }
 
-    public void sendMailWithAttachment(String attachmentPath) {
-        MimeMessage message = createMimeMessage(sender.createMimeMessage(), getAttachment(attachmentPath));
+    public void sendMailWithAttachment(String filename) {
+        MimeMessage message = createMimeMessage(sender.createMimeMessage(), getAttachment(filename));
         sender.send(message);
         LOGGER.debug("Mail sent successfully.");
-    }
-
-    private FileSystemResource getAttachment(String path) {
-        return new FileSystemResource(new File(path));
     }
 
     private MimeMessage createMimeMessage(MimeMessage message, FileSystemResource file) {
@@ -53,5 +51,10 @@ public class MailService {
             LOGGER.warn("Failed to construct MimeMessageHelper. Error message: {}", e.getMessage());
             throw new CustomException("Failed to construct message helper", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    private FileSystemResource getAttachment(String filename) {
+        String path = fileService.getPathString(filename);
+        return new FileSystemResource(new File(path));
     }
 }
