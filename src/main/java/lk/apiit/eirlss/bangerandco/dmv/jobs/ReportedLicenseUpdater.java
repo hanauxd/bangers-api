@@ -5,6 +5,8 @@ import lk.apiit.eirlss.bangerandco.dmv.web.HttpClient;
 import lk.apiit.eirlss.bangerandco.dto.requests.AuthenticationRequest;
 import lk.apiit.eirlss.bangerandco.models.ReportedLicense;
 import lk.apiit.eirlss.bangerandco.services.ReportedLicenseService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,44 +24,18 @@ import java.util.stream.Collectors;
 @EnableScheduling
 @ConditionalOnProperty(name = "app.enable.scheduling")
 public class ReportedLicenseUpdater {
+    private final Logger LOGGER = LoggerFactory.getLogger(ReportedLicenseUpdater.class);
     @Value("${dmv.base-url}")
-    private String baseURL;
+    private String DMV_BASE_URL;
     @Value("${dmv.username}")
-    private String username;
+    private String DMV_USERNAME;
     @Value("${dmv.password}")
-    private String password;
+    private String DMV_PASSWORD;
+    @Value("${app.token.prefix}")
+    private String TOKEN_PREFIX;
     private HttpClient client;
-    private final ReportedLicenseService licenseService;
-    private final Consumer<AuthResponse> authCallback = auth -> {
-        Consumer<String> licenseCallback = this::updateDatabase;
-        client.get(
-                baseURL.concat("licenses"),
-                getToken(auth.getJwt()),
-                String.class,
-                licenseCallback
-        );
-    };
-    private final Consumer<Throwable> errorCallback = throwable ->
-            System.out.println("[ON AUTH FAILURE] ".concat(throwable.getMessage()));
-
-    @Autowired
-    public ReportedLicenseUpdater(HttpClient client, ReportedLicenseService licenseService) {
-        this.client = client;
-        this.licenseService = licenseService;
-    }
-
-    @Scheduled(cron = "${cron.expression}")
-    private void execute() {
-        client.post(
-                baseURL.concat("login"),
-                new AuthenticationRequest(username, password),
-                AuthResponse.class,
-                authCallback,
-                errorCallback
-        );
-    }
-
-    private void updateDatabase(String csv) {
+    private ReportedLicenseService licenseService;
+    private final Consumer<String> licenseCallback = csv -> {
         licenseService.deleteAllInBatch();
         List<ReportedLicense> licenses = new ArrayList<>();
         String[] rows = csv.split("\n");
@@ -70,9 +46,42 @@ public class ReportedLicenseUpdater {
             licenses.add(license);
         }
         licenseService.saveAllInBatch(licenses);
+    };
+    private final Consumer<AuthResponse> authCallback = auth -> {
+        client.get(
+                endpoint("licenses"),
+                token(auth.getJwt()),
+                String.class,
+                licenseCallback
+        );
+    };
+    private final Consumer<Throwable> errorCallback = throwable -> {
+        LOGGER.warn("[ON AUTH FAILURE] {}", throwable.getMessage());
+        execute();
+    };
+
+    @Autowired
+    public ReportedLicenseUpdater(HttpClient client, ReportedLicenseService licenseService) {
+        this.client = client;
+        this.licenseService = licenseService;
     }
 
-    private String getToken(String jwt) {
-        return "Bearer ".concat(jwt);
+    @Scheduled(cron = "${cron.expression}")
+    private void execute() {
+        client.post(
+                endpoint("login"),
+                new AuthenticationRequest(DMV_USERNAME, DMV_PASSWORD),
+                AuthResponse.class,
+                authCallback,
+                errorCallback
+        );
+    }
+
+    private String token(String jwt) {
+        return TOKEN_PREFIX.concat(jwt);
+    }
+
+    private String endpoint(String endpoint) {
+        return DMV_BASE_URL.concat(endpoint);
     }
 }
