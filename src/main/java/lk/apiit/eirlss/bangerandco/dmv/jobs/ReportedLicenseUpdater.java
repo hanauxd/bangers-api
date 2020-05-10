@@ -1,10 +1,10 @@
 package lk.apiit.eirlss.bangerandco.dmv.jobs;
 
 import lk.apiit.eirlss.bangerandco.dmv.models.AuthResponse;
-import lk.apiit.eirlss.bangerandco.dmv.web.HttpClient;
 import lk.apiit.eirlss.bangerandco.dto.requests.AuthenticationRequest;
 import lk.apiit.eirlss.bangerandco.models.ReportedLicense;
 import lk.apiit.eirlss.bangerandco.services.ReportedLicenseService;
+import lk.apiit.eirlss.bangerandco.web.HttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
