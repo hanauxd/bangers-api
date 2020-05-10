@@ -1,4 +1,4 @@
-package lk.apiit.eirlss.bangerandco.dmv.web;
+package lk.apiit.eirlss.bangerandco.web;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -11,7 +11,7 @@ public class HttpClient {
     private final WebClient client;
 
     public HttpClient() {
-        client = WebClient.builder().build();
+        this.client = WebClient.builder().build();
     }
 
     public void post(String endpoint, Object body, Class<?> type, Consumer onSuccess, Consumer<Throwable> onError) {
