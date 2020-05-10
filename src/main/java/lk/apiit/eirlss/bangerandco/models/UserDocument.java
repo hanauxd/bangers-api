@@ -1,5 +1,6 @@
 package lk.apiit.eirlss.bangerandco.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class UserDocument {
     private String id;
     private String filename;
     private String type;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "issue_date")
     private Date issueDate;
 
