@@ -1,7 +1,7 @@
-package lk.apiit.eirlss.bangerandco.dmv.jobs;
+package lk.apiit.eirlss.bangerandco.jobs;
 
-import lk.apiit.eirlss.bangerandco.dmv.models.AuthResponse;
 import lk.apiit.eirlss.bangerandco.dto.requests.AuthenticationRequest;
+import lk.apiit.eirlss.bangerandco.dto.responses.DMVAuthResponse;
 import lk.apiit.eirlss.bangerandco.models.ReportedLicense;
 import lk.apiit.eirlss.bangerandco.services.ReportedLicenseService;
 import lk.apiit.eirlss.bangerandco.web.HttpClient;
@@ -47,7 +47,7 @@ public class ReportedLicenseUpdater {
         }
         licenseService.saveAllInBatch(licenses);
     };
-    private final Consumer<AuthResponse> authCallback = auth -> {
+    private final Consumer<DMVAuthResponse> authCallback = auth -> {
         client.get(
                 endpoint("licenses"),
                 token(auth.getJwt()),
@@ -71,7 +71,7 @@ public class ReportedLicenseUpdater {
         client.post(
                 endpoint("login"),
                 new AuthenticationRequest(DMV_USERNAME, DMV_PASSWORD),
-                AuthResponse.class,
+                DMVAuthResponse.class,
                 authCallback,
                 errorCallback
         );
