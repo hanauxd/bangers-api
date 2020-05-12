@@ -32,11 +32,12 @@ public class WebScraper {
             Elements rates = document.select("td.text-center.percent-17");
             persistExternalRates(vehicles, rates);
         } catch (IOException e) {
-            LOGGER.warn("Failed to get document. {}", e.getMessage());
+            LOGGER.warn("Failed to get html document. {}", e.getMessage());
         }
     }
 
     private void persistExternalRates(Elements vehicles, Elements rates) {
+        externalRateService.deleteAllInBatch();
         int j = 0;
         for (Element vehicle : vehicles) {
             externalRateService.createExternalRate(
