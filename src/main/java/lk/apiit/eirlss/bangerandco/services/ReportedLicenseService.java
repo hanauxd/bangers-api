@@ -24,7 +24,7 @@ public class ReportedLicenseService {
         licenseRepository.deleteAllInBatch();
     }
 
-    public List<ReportedLicense> saveAllInBatch(List<ReportedLicense> licenses) {
-        return licenseRepository.saveAll(licenses);
+    public void saveAllInBatch(List<ReportedLicense> licenses) {
+        licenseRepository.saveAll(licenses);
     }
 }
