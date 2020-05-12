@@ -5,6 +5,8 @@ import lk.apiit.eirlss.bangerandco.repositories.ExternalRateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ExternalRateService {
     private final ExternalRateRepository externalRateRepository;
@@ -16,5 +18,13 @@ public class ExternalRateService {
 
     public void createExternalRate(String vehicle, double rate) {
         externalRateRepository.save(new ExternalRate(vehicle, rate));
+    }
+
+    public List<ExternalRate> getVehiclesContaining(String vehicle) {
+        return externalRateRepository.findByVehicleContaining(vehicle);
+    }
+
+    public void deleteAllInBatch() {
+        externalRateRepository.deleteAllInBatch();
     }
 }
