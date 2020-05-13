@@ -36,4 +36,20 @@ public class ExternalRateService {
         }
         return rate / externalRates.size();
     }
+
+    public void persistExternalRates(Elements vehicles, Elements rates) {
+        deleteAllInBatch();
+        int j = 0;
+        for (Element vehicle : vehicles) {
+            createExternalRate(
+                    vehicle.text(),
+                    rate(rates.get(j))
+            );
+            j = j + 2;
+        }
+    }
+
+    private double rate(Element rate) {
+        return Double.parseDouble(rate.text().replace(",", ""));
+    }
 }
