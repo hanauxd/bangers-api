@@ -14,21 +14,21 @@ public class HttpClient {
         this.client = WebClient.builder().build();
     }
 
-    public void post(String endpoint, Object body, Class<?> type, Consumer onSuccess, Consumer<Throwable> onError) {
+    public void post(String endpoint, Object body, Class<?> type, Consumer<Object> onSuccess, Consumer<Throwable> onFailure) {
         client.post()
                 .uri(endpoint)
                 .bodyValue(body)
                 .retrieve()
                 .bodyToMono(type)
-                .subscribe(onSuccess, onError);
+                .subscribe(onSuccess, onFailure);
     }
 
-    public void get(String endpoint, String token, Class<?> type, Consumer onSuccess) {
+    public void get(String endpoint, String token, Class<?> type, Consumer<Object> onSuccess, Consumer<Throwable> onFailure) {
         client.get()
                 .uri(endpoint)
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .retrieve()
                 .bodyToMono(type)
-                .subscribe(onSuccess);
+                .subscribe(onSuccess, onFailure);
     }
 }
