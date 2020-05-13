@@ -20,4 +20,9 @@ public class ExternalRateController {
     public ResponseEntity<?> getAverageRateForVehicle(@PathVariable String vehicle) {
         return ResponseEntity.ok(externalRateService.average(vehicle));
     }
+
+    @GetMapping("/our-rates")
+    public ResponseEntity<?> getOurRates() {
+        return ResponseEntity.ok(externalRateService.getFleetComparison());
+    }
 }
