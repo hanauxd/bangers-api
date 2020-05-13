@@ -5,6 +5,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import lk.apiit.eirlss.bangerandco.exceptions.CustomException;
 import lk.apiit.eirlss.bangerandco.models.User;
+import lk.apiit.eirlss.bangerandco.models.UserDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,17 +34,21 @@ public class MailService {
     private final JavaMailSender sender;
     private final Configuration configuration;
     private final FileService fileService;
+    private final UserDocumentService userDocumentService;
 
     @Value("${dmv.registration-number}")
     private String registrationNumber;
     @Value("${dmv.email}")
     private String dmvEmail;
+    @Value("${spring.mail.username}")
+    private String bangerAndCoEmail;
 
     @Autowired
-    public MailService(JavaMailSender sender, Configuration configuration, FileService fileService) {
+    public MailService(JavaMailSender sender, Configuration configuration, FileService fileService, UserDocumentService userDocumentService) {
         this.sender = sender;
         this.configuration = configuration;
         this.fileService = fileService;
+        this.userDocumentService = userDocumentService;
     }
 
     public void sendMailWithAttachment(User user, String filename) {
@@ -54,11 +61,12 @@ public class MailService {
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(dmvEmail);
+            helper.setFrom(new InternetAddress(bangerAndCoEmail, "Banger & Co"));
             helper.setSubject("Reported License");
             helper.setText(htmlContent(user), true);
             helper.addAttachment(file.getFilename(), file);
             return helper.getMimeMessage();
-        } catch (MessagingException e) {
+        } catch (MessagingException | UnsupportedEncodingException e) {
             LOGGER.warn("Failed to construct MimeMessageHelper. Error message: {}", e.getMessage());
             throw new CustomException("Failed to construct message helper", HttpStatus.BAD_REQUEST);
         }
@@ -87,5 +95,11 @@ public class MailService {
             LOGGER.warn("Failed to load email template. Error message: {}", e.getMessage());
             throw new CustomException("Failed to load email template", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    public void reportToAuthority(User user) {
+        UserDocument userLicense = userDocumentService.getDocumentByType("License", user);
+        String licenseFilename = userLicense.getFilename();
+        new Thread(() -> sendMailWithAttachment(user, licenseFilename)).start();
     }
 }
