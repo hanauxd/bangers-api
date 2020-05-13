@@ -36,7 +36,8 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                         "/user-documents/download/**",
                         "/vehicles/images/download/**",
                         "/vehicles/**",
-                        "/utilities/available"
+                        "/utilities/available",
+                        "/external-rates/**"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement()
