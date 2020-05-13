@@ -118,17 +118,12 @@ public class BookingValidationService {
         }
     }
 
-    public void checkIfLicenseIsReported(User user) {
+    public ReportedLicense isLicenseReported(User user) {
         ReportedLicense reportedLicense = licenseService.getByLicense(user.getLicense());
         if (reportedLicense != null) {
-            reportToAuthority(user);
-            throw new CustomException(reportedLicense.getStatus().concat(" license found."), HttpStatus.BAD_REQUEST);
+            mailService.reportToAuthority(user);
+            return reportedLicense;
         }
-    }
-
-    private void reportToAuthority(User user) {
-        UserDocument userLicense = documentService.getDocumentByType("License", user);
-        String licenseFilename = userLicense.getFilename();
-        new Thread(() -> mailService.sendMailWithAttachment(user, licenseFilename)).start();
+        return null;
     }
 }
