@@ -71,11 +71,19 @@ public class BookingService {
     }
 
     public Booking extendBooking(Booking booking, Vehicle vehicle) {
-        validationService.checkVehicleAvailabilityForNextDay(booking.getId(), booking.getEndDate(), vehicle);
-        validationService.validateBookingPeriod(booking.getStartDate(), booking.getEndDate());
-        booking.setVehicle(vehicle);
-        calculateBookingPrice(booking);
-        return bookingRepository.save(booking);
+        ReportedLicense reportedLicense = validationService.isLicenseReported(booking.getUser());
+        if (reportedLicense != null) {
+            return refuseBooking(
+                    booking,
+                    String.format("Booking refused due to %s license.", reportedLicense.getStatus())
+            );
+        } else {
+            validationService.checkVehicleAvailabilityForNextDay(booking.getId(), booking.getEndDate(), vehicle);
+            validationService.validateBookingPeriod(booking.getStartDate(), booking.getEndDate());
+            booking.setVehicle(vehicle);
+            calculateBookingPrice(booking);
+            return bookingRepository.save(booking);
+        }
     }
 
     public Booking updateBookingStatus(String id, String status) {
@@ -89,11 +97,9 @@ public class BookingService {
             case "Collected": {
                 Fraud fraud = fraudService.getFraudByNic(user.getNic());
                 if (fraud != null) {
-                    booking.setStatus("Refused");
-                    bookingRepository.save(booking);
-                    throw new CustomException(
-                            "Vehicle hire is refused due to a fraudulent claim against the customer.",
-                            HttpStatus.BAD_REQUEST
+                    return refuseBooking(
+                            booking,
+                            "Vehicle hire is refused due to a fraudulent claim against the customer."
                     );
                 }
                 break;
@@ -101,6 +107,12 @@ public class BookingService {
         }
         booking.setStatus(status);
         return bookingRepository.save(booking);
+    }
+
+    private Booking refuseBooking(Booking booking, String message) {
+        booking.setStatus("Refused");
+        bookingRepository.save(booking);
+        throw new CustomException(message, HttpStatus.BAD_REQUEST);
     }
 
     public void deleteBooking(String id) {
@@ -155,15 +167,22 @@ public class BookingService {
     }
 
     private void validateBooking(User user, Booking booking, Vehicle vehicle) {
-        validationService.checkIfLicenseIsReported(user);
-        validationService.validateDocuments(user);
-        validationService.validateBookingAge(user, vehicle);
-        Date startDate = booking.getStartDate();
-        Date endDate = booking.getEndDate();
-        validationService.validateBookingPeriod(startDate, endDate);
-        validationService.checkVehicleAvailability(vehicle, endDate, startDate);
-        if (booking.isLateReturn() && isNewUser(user)) {
-            throw new CustomException("Late returns are not available for new users.", HttpStatus.BAD_REQUEST);
+        ReportedLicense reportedLicense = validationService.isLicenseReported(user);
+        if (reportedLicense != null) {
+            throw new CustomException(
+                    String.format("Cannot make booking due to %s license.", reportedLicense.getStatus()),
+                    HttpStatus.BAD_REQUEST
+            );
+        } else {
+            validationService.validateDocuments(user);
+            validationService.validateBookingAge(user, vehicle);
+            Date startDate = booking.getStartDate();
+            Date endDate = booking.getEndDate();
+            validationService.validateBookingPeriod(startDate, endDate);
+            validationService.checkVehicleAvailability(vehicle, endDate, startDate);
+            if (booking.isLateReturn() && isNewUser(user)) {
+                throw new CustomException("Late returns are not available for new users.", HttpStatus.BAD_REQUEST);
+            }
         }
     }
 }
