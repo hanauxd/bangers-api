@@ -27,4 +27,13 @@ public class ExternalRateService {
     public void deleteAllInBatch() {
         externalRateRepository.deleteAllInBatch();
     }
+
+    public double average(String vehicle) {
+        List<ExternalRate> externalRates = getVehiclesContaining(vehicle);
+        double rate = 0;
+        for (ExternalRate extRate : externalRates) {
+            rate += extRate.getRate();
+        }
+        return rate / externalRates.size();
+    }
 }
