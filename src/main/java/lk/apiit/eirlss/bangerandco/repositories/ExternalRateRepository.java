@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ExternalRateRepository extends JpaRepository<ExternalRate, String> {
-    List<ExternalRate> findByVehicleContaining(String vehicle);
+    List<ExternalRate> findAllByVehicle(String name);
 }
