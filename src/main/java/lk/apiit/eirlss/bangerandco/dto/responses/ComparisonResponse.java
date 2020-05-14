@@ -4,11 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FleetResponse {
-    private List<ComparisonResponse> comparisonResponses;
+public class ComparisonResponse {
+    private String vehicle;
+    private double externalRate;
+    private double ourRate;
 }
