@@ -167,6 +167,7 @@ public class BookingService {
     }
 
     private void validateBooking(User user, Booking booking, Vehicle vehicle) {
+        validationService.validateDocuments(user);
         ReportedLicense reportedLicense = validationService.isLicenseReported(user);
         if (reportedLicense != null) {
             throw new CustomException(
@@ -174,7 +175,6 @@ public class BookingService {
                     HttpStatus.BAD_REQUEST
             );
         } else {
-            validationService.validateDocuments(user);
             validationService.validateBookingAge(user, vehicle);
             Date startDate = booking.getStartDate();
             Date endDate = booking.getEndDate();
