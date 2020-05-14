@@ -20,9 +20,11 @@ public class ExternalRate {
     private String id;
     private String vehicle;
     private double rate;
+    private String ourVehicleId;
 
-    public ExternalRate(String vehicle, double rate) {
+    public ExternalRate(String vehicle, double rate, String ourVehicleId) {
         this.vehicle = vehicle;
         this.rate = rate;
+        this.ourVehicleId = ourVehicleId;
     }
 }

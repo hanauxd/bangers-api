@@ -17,7 +17,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -25,6 +24,8 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(name = "app.enable.scheduling")
 public class ReportedLicenseUpdater {
     private final Logger LOGGER = LoggerFactory.getLogger(ReportedLicenseUpdater.class);
+    private final HttpClient client;
+    private final ReportedLicenseService licenseService;
     @Value("${dmv.base-url}")
     private String DMV_BASE_URL;
     @Value("${dmv.username}")
@@ -33,32 +34,6 @@ public class ReportedLicenseUpdater {
     private String DMV_PASSWORD;
     @Value("${app.token.prefix}")
     private String TOKEN_PREFIX;
-    private HttpClient client;
-    private ReportedLicenseService licenseService;
-    private final Consumer<String> licenseCallback = csv -> {
-        licenseService.deleteAllInBatch();
-        List<ReportedLicense> licenses = new ArrayList<>();
-        String[] rows = csv.split("\n");
-        List<String> records = Arrays.stream(rows).skip(1).collect(Collectors.toList());
-        for (String record : records) {
-            String[] values = record.split(",");
-            ReportedLicense license = new ReportedLicense(values[0], values[1], values[2]);
-            licenses.add(license);
-        }
-        licenseService.saveAllInBatch(licenses);
-    };
-    private final Consumer<DMVAuthResponse> authCallback = auth -> {
-        client.get(
-                endpoint("licenses"),
-                token(auth.getJwt()),
-                String.class,
-                licenseCallback
-        );
-    };
-    private final Consumer<Throwable> errorCallback = throwable -> {
-        LOGGER.warn("[ON AUTH FAILURE] {}", throwable.getMessage());
-        execute();
-    };
 
     @Autowired
     public ReportedLicenseUpdater(HttpClient client, ReportedLicenseService licenseService) {
@@ -72,9 +47,43 @@ public class ReportedLicenseUpdater {
                 endpoint("login"),
                 new AuthenticationRequest(DMV_USERNAME, DMV_PASSWORD),
                 DMVAuthResponse.class,
-                authCallback,
-                errorCallback
+                this::onAuthSuccess,
+                this::onAuthFailure
         );
+    }
+
+    private void onAuthSuccess(Object res) {
+        DMVAuthResponse authResponse = (DMVAuthResponse) res;
+        client.get(
+                endpoint("licenses"),
+                token(authResponse.getJwt()),
+                String.class,
+                this::onLicenseSuccess,
+                this::onLicenseFailure
+        );
+    }
+
+    private void onLicenseSuccess(Object csv) {
+        String csvString = (String) csv;
+        licenseService.deleteAllInBatch();
+        List<ReportedLicense> licenses = new ArrayList<>();
+        String[] rows = csvString.split("\n");
+        List<String> records = Arrays.stream(rows).skip(1).collect(Collectors.toList());
+        for (String record : records) {
+            String[] values = record.split(",");
+            ReportedLicense license = new ReportedLicense(values[0], values[1], values[2]);
+            licenses.add(license);
+        }
+        licenseService.saveAllInBatch(licenses);
+    }
+
+    private void onAuthFailure(Throwable throwable) {
+        LOGGER.warn("[ON AUTH FAILURE] {}", throwable.getMessage());
+        execute();
+    }
+
+    private void onLicenseFailure(Throwable throwable) {
+        LOGGER.warn("[ON LICENSE FAILURE] {}", throwable.getMessage());
     }
 
     private String token(String jwt) {

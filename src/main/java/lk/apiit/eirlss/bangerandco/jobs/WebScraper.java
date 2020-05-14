@@ -3,7 +3,6 @@ package lk.apiit.eirlss.bangerandco.jobs;
 import lk.apiit.eirlss.bangerandco.services.ExternalRateService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,25 +29,9 @@ public class WebScraper {
             Document document = Jsoup.connect(URL).get();
             Elements vehicles = document.select("td.text-left.percent-60");
             Elements rates = document.select("td.text-center.percent-17");
-            persistExternalRates(vehicles, rates);
+            externalRateService.persistExternalRates(vehicles, rates);
         } catch (IOException e) {
             LOGGER.warn("Failed to get html document. {}", e.getMessage());
         }
-    }
-
-    private void persistExternalRates(Elements vehicles, Elements rates) {
-        externalRateService.deleteAllInBatch();
-        int j = 0;
-        for (Element vehicle : vehicles) {
-            externalRateService.createExternalRate(
-                    vehicle.text(),
-                    rate(rates.get(j))
-            );
-            j = j + 2;
-        }
-    }
-
-    private double rate(Element rate) {
-        return Double.parseDouble(rate.text().replace(",", ""));
     }
 }
