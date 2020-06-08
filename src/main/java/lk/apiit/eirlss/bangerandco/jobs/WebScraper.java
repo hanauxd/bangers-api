@@ -12,9 +12,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
+import static lk.apiit.eirlss.bangerandco.jobs.Constants.*;
+
 @Service
 public class WebScraper {
-    private static final String URL = "https://www.malkey.lk/rates/with-driver-rates.html";
     private final Logger LOGGER = LoggerFactory.getLogger(WebScraper.class);
     private final ExternalRateService externalRateService;
 
@@ -26,9 +27,9 @@ public class WebScraper {
     @Scheduled(cron = "${cron.expression}")
     public void scrape() {
         try {
-            Document document = Jsoup.connect(URL).get();
-            Elements vehicles = document.select("td.text-left.percent-60");
-            Elements rates = document.select("td.text-center.percent-17");
+            Document document = Jsoup.connect(MALKEY_URL).get();
+            Elements vehicles = document.select(CSS_QUERY_VEHICLES);
+            Elements rates = document.select(CSS_QUERY_RATES);
             externalRateService.persistExternalRates(vehicles, rates);
         } catch (IOException e) {
             LOGGER.warn("Failed to get html document. {}", e.getMessage());
